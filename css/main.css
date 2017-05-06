@@ -1,0 +1,97 @@
+@font-face {
+    font-family: flat;
+    src: url(fonts/Dense-Regular.otf);
+}
+
+@font-face {
+  font-family: score;
+  src: url(fonts/Lovelo-Line-Light.otf);
+}
+
+@font-face {
+    font-family: console;
+    src: url(fonts/consolas.ttf);
+}
+
+@font-face {
+  font-family: instructions;
+  src: url(fonts/Montserrat-Regular.ttf);
+}
+
+html,
+body {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background-color: #ecf0f1;
+}
+
+#instructions {
+    font-size: 20px;
+}
+#build {
+    font-size: 12px;
+    font-family: console;
+    text-align: left;
+}
+
+#game {
+    image-rendering: optimizeSpeed; // Older versions of FF
+    image-rendering: -moz-crisp-edges; // FF 6.0+
+    image-rendering: -webkit-optimize-contrast; // Webkit
+    image-rendering: -o-crisp-edges; // OS X & Windows Opera (12.02+)
+    image-rendering: optimize-contrast; // Possible future browsers.
+    -ms-interpolation-mode: nearest-neighbor; // IE
+}
+
+h1 {
+    display: block;
+    text-align: center;
+    margin-top: 20%;
+    color: #2c3e50;
+    font-family: flat;
+    font-size: 70px;
+    font-weight: 100;
+}
+
+
+
+
+.btn {
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    /*font-family: flat;*/
+    font-family: instructions;
+    font-weight: 100;
+    color: #ffffff;
+    font-size: 30px;
+    background: #3498db;
+    padding: 15px 15px;
+    border: solid #ecf0f1 0px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-row {
+    width:80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.b-item {
+    margin-top: 15px;
+    width:48%;
+    margin-left: auto;
+    margin-right: auto;
+
+
+}
+
+.m-item {
+    display: block;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}

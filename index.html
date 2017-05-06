@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta id="viewport" name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+		<title>Close Call</title>
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+	</head>
+
+	<script src="cordova.js"></script>
+	<script src="lib/zepto.min.js"></script>
+	<script src="lib/moment.min.js"></script>
+	<script src="lib/underscore.min.js"></script>
+	<script src="js/utils.js"></script>
+	<script src="js/character.js"></script>
+	<script src="js/enemy.js"></script>
+	<script src="js/bullet.js"></script>
+	<script src="js/particle.js"></script>
+	<script src="js/wall.js"></script>
+
+	<script>
+
+	var device = false;
+
+	// var taunts = [
+	// 	'YOU DIES!',
+	// 	'YOU LOSES!',
+	// 	'Y U SO BADS?',
+	// 	'COME AT ME BRAH!'
+	// ];
+
+	var accel = {};
+	accel.x=0;
+	accel.y=0
+
+	var SCALAR = 0;
+	var OS = "";
+	var difficultyLock = false;
+	var highScoreLeaderboardId = "CgkI1r2o_qUYEAIQAA";
+
+	var levelSystem = {
+		previousLevel: 0,
+		currentLevel: 1,
+		score: 0,
+		reserveStack: [ "pentagon",  "square", "triangle"],
+		spawnStack: [],
+		spawnCount: 0
+	}
+
+	var resetLevelSystem = function(){
+		levelSystem = {
+			previousLevel: 0,
+			currentLevel: 1,
+			score: 0,
+			reserveStack: ["rotate_shoot", "multiply", "square_drop", "pentagon",  "square", "triangle"],
+			// reserveStack: [ "rotate_shoot"],
+			spawnStack: [],
+			spawnCount: 0
+		}
+	}
+
+	var checkLevel = function(){
+
+		levelSystem.currentLevel = Math.floor(levelSystem.score/3) + 1;
+		console.log(levelSystem.currentLevel);
+		if (levelSystem.currentLevel > levelSystem.previousLevel){
+			console.log("entered")
+			levelSystem.spawnCount = 0;
+			if (levelSystem.reserveStack.length > 0)
+				levelSystem.spawnStack.push(levelSystem.reserveStack.pop());
+		}
+		levelSystem.previousLevel = levelSystem.currentLevel;
+
+	}
+
+	var MECHANICS = {};
+
+	var resetMechanics = function(){
+		MECHANICS = {
+			ENEMY_HEALTH: 25,//arbitrary value
+			SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
+			ENEMY_CREATION_RATE: 4000, //milliseconds (global)
+			DEVELOPER_MODE: false, //(global)
+			ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
+			ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
+			RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
+			BLOCK_DIFFICULTY_INCREASE: 50, //level at which there is no increase (global, deprecated)
+			ENEMY_HEALTH_INCREASE_RATE: 5, //global, deprecated
+			ENEMY_SPEED_INCREASE_RATE: 0.25,// rate at which the enemy speed increases, (global, deprecated)
+			INCREASE_DIFFICULTY: true
+		}
+	}
+	resetMechanics();
+
+
+	document.addEventListener("deviceready",function(){
+		device = true;
+
+
+		var admobid = {};
+		if( /(android)/i.test(navigator.userAgent) ) {
+    		admobid = { // for Android
+    			banner: 'ca-app-pub-7495716256845996/4489991865',
+    			interstitial: 'ca-app-pub-7495716256845996/5966725063'
+    		};
+		}
+		else if(/(ipod|iphone|ipad)/i.test(navigator.userAgent)) {
+    		admobid = { // for iOS
+    			banner: 'ca-app-pub-7495716256845996/2873657867',
+    			interstitial: 'ca-app-pub-7495716256845996/4350391067'
+    		};
+		}
+
+		if (AdMob) {
+        	AdMob.createBanner({
+            	adId : admobid.banner,
+            	position : AdMob.AD_POSITION.BOTTOM_CENTER,
+            	autoShow : true
+        	});
+        	AdMob.prepareInterstitial( {
+        		adId:admobid.interstitial,
+        		autoShow:false
+        	});
+    	}
+
+		window.plugin.webviewSetting.set(function(err,status){
+			if(err){
+				console.error('failed');
+			}
+			else{
+				console.log('fixed')
+			}
+		});
+
+		window.plugins.insomnia.keepAwake();
+
+		googleplaygame.auth();
+
+		window.plugins.NativeAudio.preloadSimple('sounds/death.wav', 'sounds/death.wav',
+			function(msg){console.info(msg)},
+			function(msg){console.error('Error: ' + msg );
+		});
+
+		window.plugins.NativeAudio.preloadSimple('sounds/pd.wav', 'sounds/pd.wav',
+			function(msg){console.info(msg)},
+			function(msg){console.error('Error: ' + msg );
+		});
+
+	}, false);
+
+	// document.addEventListener('DOMContentLoaded', function(){
+ //        if(screen.lockOrientation){
+ //        	screen.lockOrientation('portrait');
+ //        }
+	// });
+
+	Zepto(function($){
+		window.onload = function(){
+
+		var enemyDeath = document.getElementById("sound-death");
+
+		getCurrentBuild(function(data){
+			var date = moment(data.date).format('MMMM Do YYYY, h:mm a');
+			$("#build").append("Version Rev"+ data.version + " (alpha) <br> Last updated " + date + "<br> Build: " + data.message );
+		})
+
+		OS = getOS();
+
+		var COLORS = {
+			BG: "#ecf0f1",
+			CHARACTER: "#2980b9",
+			ENEMY: "#27ae60"
+		}
+
+		var states = {
+			GAME: 0,
+			GAME_OVER: 1,
+			MAIN_MENU: 2
+		}
+
+		var character = {};
+
+		// var score = 0;
+		var lossCounter = 0;
+
+		var game = {};
+
+		var c = $("#game");
+
+		var offset = {
+			x:0,
+			y:0,
+			z:0
+		}
+
+		var ctx = c.get(0).getContext("2d");
+
+		game.start = function(){
+			console.log("game started");
+			console.log(OS);
+
+			resetMechanics();
+			resetLevelSystem();
+
+			game.limbo = false;
+
+    		ctx.imageSmoothingEnabled = false;
+
+			game.height =  document.documentElement.clientHeight;
+			game.width =  document.documentElement.clientWidth;
+
+			// game.height = window.innerHeight * window.devicePixelRatio;
+			// game.width = window.innerWidth * window.devicePixelRatio;
+
+			SCALAR = game.height;
+
+			console.log(SCALAR, game.width);
+
+			c.attr("width", game.width);
+			c.attr("height", game.height);
+			c.css('background-color', COLORS.BG);
+			c.css('left', '0');
+
+			offset.x = accel.x;
+			offset.y = accel.y;
+
+			character = new Character();
+
+			// pad.clear();
+			game.enemyGeneratorId = setInterval(createEnemy, MECHANICS.ENEMY_CREATION_RATE);
+			setTimeout(function(){
+				game.id = setInterval(game.loop, 1000 / 60);
+			}, 300);
+
+		}
+
+		// ctx.webkitImageSmoothingEnabled = false;
+  		// ctx.mozImageSmoothingEnabled = false;
+
+		// var pad = {};
+
+		// pad.clear = function(){
+		// 	pad.start = {};
+		// 	pad.moving = {};
+		// 	pad.active = false;
+		// }
+
+		c.on("touchstart", function(e){
+		// 	pad.start.x = e.changedTouches[0].clientX;
+		// 	pad.start.y = e.changedTouches[0].clientY;
+		// 	pad.active = true;
+
+			character.x = game.width/2;
+			character.y = game.height/2;
+			offset.x = accel.x;
+			offset.y = accel.y;
+
+			// console.log("tap");
+		})
+
+		// c.on("touchmove", function(e){
+		// 	pad.moving.x = e.changedTouches[0].clientX;
+		// 	pad.moving.y = e.changedTouches[0].clientY;
+
+		// })
+
+		// c.on("touchend", function(e){
+		// 	if (pad.active){
+		// 		pad.clear();
+		// 	}
+		// })
+
+		window.ondevicemotion = function(event) {
+			accel.x = event.accelerationIncludingGravity.x;
+			accel.y = event.accelerationIncludingGravity.y;
+			// var accelerationZ = event.accelerationIncludingGravity.z;
+		}
+
+		var enemyStack = [];
+		var bulletStack = [];
+		var particleStack = [];
+
+		var randomFloat = function(min, max)
+		{
+			return min + Math.random()*(max-min);
+		}
+
+		var drawScore = function(){
+			// ctx.font = "100px flat";
+			// ctx.fillStyle = '#2c3e50';
+			// ctx.fillText(levelSystem.score, game.width - 100, 100);
+				ctx.font = "700px score";
+				ctx.fillStyle = '#bdc3c7';
+				ctx.textAlign = "center";
+				ctx.fillText(levelSystem.score, game.width/2, game.height/2);
+		}
+
+		var createEnemy = function(){
+
+			checkLevel();
+
+			if (levelSystem.spawnCount < 5){
+				levelSystem.spawnCount++;
+				var type = levelSystem.spawnStack[Math.floor(Math.random() * levelSystem.spawnStack.length)];
+				console.log("createEnemy type", type);
+				enemyStack.push(new Enemy(type));
+			}
+		}
+
+		var collision = function(o1, o2){
+			var dx = o2.x - o1.x;
+			var dy = o2.y - o1.y;
+			var radii = o2.radius + o1.radius;
+			if (( dx * dx )  + ( dy * dy ) < radii * radii ){
+				return true;
+			}
+		}
+
+		var close = function(character, enemy){
+
+			var xDiff = enemy.x - character.x;
+			var yDiff = enemy.y - character.y;
+			var distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+			if(distance < SCALAR * MECHANICS.SHOOTING_DISTANCE_MULTIPLIER){
+
+				var angle = Math.atan(xDiff/yDiff);
+
+				if (enemy.x  < character.x  ) {
+					if (enemy.y < character.y) angle = Math.PI/2 - angle;
+					else if (enemy.y  > character.y) angle = (Math.PI/2 + angle)*-1;
+				}
+				else if (enemy.x  > character.x ) {
+					if (enemy.y < character.y ) angle = Math.PI/2 + (angle*-1);
+					else if (enemy.y > character.y) angle = (Math.PI/2 + angle)*-1;
+				}
+
+				var bulletSpeedX = -1 * Math.cos(angle);
+				var bulletSpeedY = -1 * Math.sin(angle);
+
+				// _.throttle(function(){
+					bulletStack.push(new Bullet(character.x, character.y, bulletSpeedX, bulletSpeedY));
+				// }, 100, true);
+
+				return true;
+
+			}
+		}
+
+		var createExplosion = function(x, y, color)
+		{
+			var minSize = SCALAR * 0.04;
+			var maxSize = SCALAR * 0.06;
+			var count = 10;
+			var minSpeed = 60.0 * 2; //scalar
+			var maxSpeed = 200.0 * 2; //scalar
+			var minScaleSpeed = 1.0; //scalar
+			var maxScaleSpeed = 4.0; //scalar
+
+			for (var angle=0; angle<360; angle += Math.round(360/count))
+			{
+				var particle = new Particle();
+
+				particle.x = x;
+				particle.y = y;
+
+				particle.radius = randomFloat(minSize, maxSize);
+
+				particle.color = color;
+
+				particle.scaleSpeed = randomFloat(minScaleSpeed, maxScaleSpeed);
+
+				var speed = randomFloat(minSpeed, maxSpeed);
+
+				particle.velocityX = speed * Math.cos(angle * Math.PI / 180.0);
+				particle.velocityY = speed * Math.sin(angle * Math.PI / 180.0);
+
+				particleStack.push(particle);
+			}
+		}
+
+		var clearStacks = function(){
+			enemyStack = [];
+			bulletStack = [];
+			partcleStack = [];
+		}
+
+		var increaseDifficulty = function(score){
+			// MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
+			MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
+			MECHANICS.ENEMY_MAX_SPEED += MECHANICS.ENEMY_SPEED_INCREASE_RATE;
+
+			console.log("difficulty increase");
+		}
+
+		game.update = function(){
+
+			// if (MECHANICS.INCREASE_DIFFICULTY &&
+			// 	score <= MECHANICS.BLOCK_DIFFICULTY_INCREASE &&
+			// 	score != 0 &&
+			// 	score % MECHANICS.RATE_OF_DIFFICULTY_INCREASE == 0 &&
+			// 	!difficultyLock)
+			// {
+			// 	difficultyLock = true;
+			// 	increaseDifficulty();
+			// }
+
+
+			enemyStack.forEach(function(enemy, index, array){
+				enemy.behaviour(enemyStack, bulletStack, character);
+				enemy.move(character);
+				if (collision(character, enemy)){
+					if (!MECHANICS.DEVELOPER_MODE){
+						game.stop();
+						lossCounter++;
+
+						if (device){
+							window.plugins.NativeAudio.play('sounds/pd.wav',
+								function(msg){console.info(msg)},
+								function(msg){ console.error( 'Error: ' + msg ); },
+								function(msg){ console.error( 'Complete: ' + msg );
+							});
+						}
+					}
+				}
+
+				if (close(character, enemy)){
+
+					console.log("close");
+				}
+
+				if (enemy.isDead()) {
+					createExplosion(enemy.x, enemy.y, "#525252");
+					createExplosion(enemy.x, enemy.y, "#FFA318");
+					delete array[index];
+
+					// enemyDeath.play();
+
+					if (device){
+						window.plugins.NativeAudio.play('sounds/death.wav',
+							function(msg){console.info(msg)},
+							function(msg){ console.error( 'Error: ' + msg ); },
+							function(msg){ console.error( 'Complete: ' + msg );
+						});
+					}
+
+					levelSystem.score++;
+					difficultyLock = false;
+					if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
+				}
+			});
+
+			bulletStack.forEach(function(bullet, index, array){
+				bullet.move();
+
+				if(bullet.fromEnemy && collision (bullet, character)){
+					if (!MECHANICS.DEVELOPER_MODE){
+						game.stop();
+						lossCounter++;
+					}
+				}
+
+				enemyStack.forEach(function(enemy, ei, ea){
+					if (collision(bullet, enemy) && !bullet.fromEnemy){
+						enemy.decreaseHealth();
+						setTimeout(function(){
+							delete array[index];
+						}, 10);
+
+					}
+
+					// else if (bullet.fromEnemy && collision(bullet, enemy)){
+					// 	enemy.kill();
+					// }
+				});
+
+				if (bullet.isOutside()){
+					delete array[index];
+				}
+			});
+
+			particleStack.forEach(function(particle, index, array){
+				particle.update();
+				if (particle.isDead()){
+					delete array[index];
+				}
+			});
+
+			var inverse = false;
+			if (wallLibrary[levelSystem.currentLevel - 1]){
+				wallLibrary[levelSystem.currentLevel - 1].forEach(function(wall, index, array){
+					// console.log(wall.collision(character));
+					if (wall.collision(character)){
+						inverse = true;
+					}
+				});
+			}
+
+			character.move(accel, offset, inverse);
+
+		}
+
+		game.draw = function(){
+			ctx.clearRect(0, 0, game.width, game.height);
+			drawScore();
+			bulletStack.forEach(function(bullet){
+				bullet.draw(ctx);
+			});
+
+			enemyStack.forEach(function(enemy){
+				enemy.draw(ctx);
+			});
+
+			particleStack.forEach(function(particle, index, array){
+				particle.draw(ctx);
+			});
+
+			character.draw(ctx);
+
+			wallLibrary[levelSystem.currentLevel - 1].forEach(function(wall, index, array){
+				wall.draw(ctx);
+			});
+
+		}
+
+		game.loop = function(){
+			game.update();
+			game.draw();
+		}
+
+		game.endGame = function(){
+			particleStack.forEach(function(particle, index, array){
+				particle.update();
+				if (particle.isDead()){
+					delete array[index];
+				}
+			});
+
+			ctx.clearRect(0, 0, game.width, game.height);
+			drawScore();
+
+
+			enemyStack.forEach(function(enemy){
+				enemy.draw(ctx);
+			});
+
+			particleStack.forEach(function(particle, index, array){
+				particle.draw(ctx);
+			});
+
+		}
+
+		game.stop = function(){
+			console.log("game stopped");
+
+			clearInterval(game.id);
+			clearInterval(game.enemyGeneratorId);
+
+			var endGameId = setInterval(game.endGame, 1000/60);
+
+			createExplosion(character.x, character.y, "#525252");
+			createExplosion(character.x, character.y, "#FFA318");
+
+			if(device && AdMob && lossCounter % 5 == 0) {
+    			AdMob.showInterstitial();
+			}
+
+
+
+			var highScore = window.localStorage.getItem("highScore");
+			if (!highScore) highScore = 0;
+			if (levelSystem.score > highScore){
+				highScore = levelSystem.score;
+				window.localStorage.setItem("highScore", highScore);
+				if (device){
+					googleplaygame.submitScore({score:levelSystem.score, leaderboardId: highScoreLeaderboardId });
+				}
+			}
+
+			$("#taunt").empty();
+			// $("#taunt").append(taunts[Math.floor(Math.random()*taunts.length)]);
+			$("#taunt").append("Game Over");
+			$("#score").empty();
+			$("#score").append("SCORE: " + levelSystem.score + "<br> BEST: " + highScore);
+
+			setTimeout(function(){
+
+				clearInterval(endGameId);
+				levelSystem.score=0;
+				clearStacks();
+				changeState(states.GAME_OVER);
+
+			}, 3000)
+		}
+
+		var changeState = function(state){
+			$(document.body).trigger("lb:stateChange", state);
+		}
+
+		$(document).on("lb:stateChange", function(e, currentState){
+			$(".item").hide();
+			if (currentState == states.MAIN_MENU){
+				$("#main-menu").show();
+				$("#viewport").attr("content", "user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height");
+			}
+			else if (currentState == states.GAME){
+				setTimeout(function(){
+					$("#game").show();
+
+				}, 200);
+				$("#viewport").attr("content", "");
+				game.start();
+			}
+			else if (currentState == states.GAME_OVER){
+				$("#game-over").show();
+				$("#viewport").attr("content", "user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height");
+			}
+		});
+
+		$("#start").on("click", function(){
+			changeState(states.GAME);
+		});
+
+		$("#leaderboards").on("click", function(){
+			if (device){
+				googleplaygame.isSignedIn(function(result){
+					if (result.isSignedIn){
+						googleplaygame.showLeaderboard({leaderboardId: highScoreLeaderboardId });
+					}
+					else {
+						googleplaygame.auth();
+					}
+				});
+			}
+		})
+
+		$("#restart").on("click", function(){
+			changeState(states.GAME);
+		})
+
+		$("#home").on("click", function(){
+			changeState(states.MAIN_MENU);
+		})
+
+		changeState(states.MAIN_MENU);
+		}
+
+	});
+
+
+	</script>
+	<body>
+		<canvas class="item" id="game"></canvas>
+		<div class="item" id="game-over">
+			<h1 ><span id="taunt"> </span></h1>
+			<button class="btn m-item" style="background: #2980b9;" id="score">
+				<span id="score"></span>
+			</button>
+			<div class="btn-row">
+
+				<button class="btn b-item" style="background: #27ae60; float:left;" id="home" >
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+						<path d="M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z" fill="#ecf0f1"></path>
+					</svg>
+				</button>
+				<button class="btn b-item" style="background: #c0392b; float:right;" id="restart" >
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+						<path d="M32 12h-12l4.485-4.485c-2.267-2.266-5.28-3.515-8.485-3.515s-6.219 1.248-8.485 3.515c-2.266 2.267-3.515 5.28-3.515 8.485s1.248 6.219 3.515 8.485c2.267 2.266 5.28 3.515 8.485 3.515s6.219-1.248 8.485-3.515c0.189-0.189 0.371-0.384 0.546-0.583l3.010 2.634c-2.933 3.349-7.239 5.464-12.041 5.464-8.837 0-16-7.163-16-16s7.163-16 16-16c4.418 0 8.418 1.791 11.313 4.687l4.687-4.687v12z" fill="#ecf0f1"></path>
+					</svg>
+				</button>
+			</div>
+
+		</div>
+		<div class="item" id="main-menu">
+			<h1>CLOSE CALL</h1>
+			<button class="btn m-item" style="background: #2980b9;" id="instructions">
+				<!-- Hold your device in a comfortable position and control the game by tilting it slightly.
+				<br><br>
+				Avoid touching the enemies, but get close enough to kill them. -->
+				Hold your device flat, and tap to center.
+				<br>
+
+
+			</button>
+			<div class="btn-row">
+				<button class="btn b-item" style="background: #27ae60; float:left;" id="start" >
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+						<path d="M6 4l20 12-20 12z" fill="#ecf0f1"></path>
+					</svg>
+				</button>
+				<button class="btn b-item" style="background: #c0392b; float:right;" id="leaderboards">
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+						<path d="M26 6v-4h-20v4h-6v4c0 3.314 2.686 6 6 6 0.627 0 1.232-0.096 1.801-0.275 1.443 2.063 3.644 3.556 6.199 4.075v6.2h-2c-2.209 0-4 1.791-4 4h16c0-2.209-1.791-4-4-4h-2v-6.2c2.555-0.519 4.756-2.012 6.199-4.075 0.568 0.179 1.173 0.275 1.801 0.275 3.314 0 6-2.686 6-6v-4h-6zM6 13.625c-1.999 0-3.625-1.626-3.625-3.625v-2h3.625v2c0 1.256 0.232 2.457 0.655 3.565-0.213 0.039-0.431 0.060-0.655 0.060zM29.625 10c0 1.999-1.626 3.625-3.625 3.625-0.224 0-0.442-0.021-0.655-0.060 0.423-1.107 0.655-2.309 0.655-3.565v-2h3.625v2z" fill="#ecf0f1">
+						</path>
+					</svg>
+				</button>
+			</div>
+
+			<!-- <button class="m-item" style="background: #2a2a2a;" id="build"></button> -->
+
+		<audio src="sounds/death.wav" controls="none" id="sound-death" hidden/>
+		</div>
+	</body>
+</html>
