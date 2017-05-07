@@ -9,14 +9,7 @@ var DIRECTION = {
 var COLORS = {
     BG: "#ecf0f1"
 }
-var STATES = {
-    GAME: 0,
-    GAME_OVER: 1,
-    MAIN_MENU: 2,
-    HOSTING: 3,
-    JOINING: 4,
-    HOST_WAITING: 5
-}
+
 
 var difficultyLock = false;
 var levelSystem = {
@@ -55,7 +48,7 @@ var resetMechanics = function(){
         ENEMY_HEALTH: 25,//arbitrary value
         SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
         ENEMY_CREATION_RATE: 4000, //milliseconds (global)
-        DEVELOPER_MODE: false, //(global)
+        DEVELOPER_MODE: true, //(global)
         ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
         ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
         RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
@@ -146,19 +139,30 @@ Zepto(function($){
 
         character = new Character();
 
-        if (multiplayer ) {
+        if (multiplayer) {
             if (hosting){
-                network.receiveCallback(game.receiveHostData);
+                network.setGameDataCallback(game.receiveHostData);
             } else {
-                network.receiveCallback(game.receiveJoinData);
+                network.setGameDataCallback(game.receiveJoinData);
             }
         }
 
         if (!multiplayer || hosting) {
             game.enemyGeneratorId = setInterval(createEnemy, MECHANICS.ENEMY_CREATION_RATE);
-            setTimeout(function(){
-                game.id = setInterval(game.loop, 1000 / 60);
-            }, 300);
+        }
+
+        setTimeout(function(){
+            game.id = setInterval(game.loop, 1000 / 60);
+        }, 300);
+    }
+
+    game.network = function() {
+        if (multiplayer) {
+            if (hosting) {
+                game.sendHostData();
+            } else {
+                game.sendJoinData();
+            }
         }
     }
 
@@ -169,25 +173,39 @@ Zepto(function($){
             bulletStack: bulletStack,
             particleStack: particleStack
         };
-        network.sendData(zip);
+        network.sendGameData(zip);
     }
 
     game.sendJoinData = function() {
         var zip = {
-            character: character
+            character: character,
+            bulletStack: bulletStack
         }
-        network.sendData(zip);
+        network.sendGameData(zip);
     }
 
     game.receiveHostData = function(zip) {
-        otherCharacter = zip.character;
+        if (!otherCharacter) {
+            otherCharacter = new Character();
+        }
+        otherCharacter.setState(zip.character);
+
+        zip.bulletStack.forEach(function(bullet){
+            bulletStack.push(new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY, bullet.false));
+        });
     }
 
-    game.receiveJoinData = function() {
-        otherCharacter = zip.character;
-        enemyStack.concat(zip.enemyStack);
-        bulletStack.concat(zip.bulletStack);
-        particleStack.concat(zip.particleStack);
+    game.receiveJoinData = function(zip) {
+        if (!otherCharacter) {
+            otherCharacter = new Character();
+        }
+        otherCharacter.setState(zip.character);
+        zip.bulletStack.forEach(function(bullet){
+            bulletStack.push(new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY, bullet.false));
+        });
+        // enemyStack.concat(zip.enemyStack);
+        // bulletStack.concat(zip.bulletStack);
+        // particleStack.concat(zip.particleStack);
     }
 
     $game.on("touchstart", function(e){
@@ -271,6 +289,7 @@ Zepto(function($){
         MECHANICS.ENEMY_MAX_SPEED += MECHANICS.ENEMY_SPEED_INCREASE_RATE;
     }
 
+    //should be moved to bullet.js
     var createBullet = function () {
         if (mouse.down){
             var xDiff = mouse.x - character.x;
@@ -327,29 +346,32 @@ Zepto(function($){
 
         createBullet();
 
-        bulletStack.forEach(function(bullet, index, array){
-            bullet.move();
+        if (!multiplayer || (multiplayer && hosting)){
+            bulletStack.forEach(function(bullet, index, array){
+                bullet.move();
 
-            if(bullet.fromEnemy && collision (bullet, character)){
-                if (!MECHANICS.DEVELOPER_MODE){
-                    game.stop();
-                    lossCounter++;
+                if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
+                    if (!MECHANICS.DEVELOPER_MODE){
+                        game.stop();
+                        lossCounter++;
+                    }
                 }
-            }
 
-            enemyStack.forEach(function(enemy, ei, ea){
-                if (collision(bullet, enemy) && !bullet.fromEnemy){
-                    enemy.decreaseHealth();
-                    setTimeout(function(){
-                        delete array[index];
-                    }, 10);
+                enemyStack.forEach(function(enemy, ei, ea){
+                    if (collision(bullet, enemy) && !bullet.fromEnemy){
+                        enemy.decreaseHealth();
+                        setTimeout(function(){
+                            delete array[index];
+                        }, 10);
+                    }
+                });
+
+                if (bullet.isOutside()){
+                    delete array[index];
                 }
             });
+        }
 
-            if (bullet.isOutside()){
-                delete array[index];
-            }
-        });
 
         particleStack.forEach(function(particle, index, array){
             particle.update();
@@ -377,9 +399,14 @@ Zepto(function($){
         });
 
         character.draw(ctx);
+        if (multiplayer){
+            // console.log(otherCharacter);
+            otherCharacter.draw(ctx);
+        }
     }
 
     game.loop = function(){
+        game.network();
         game.update();
         game.draw();
     }
@@ -432,87 +459,105 @@ Zepto(function($){
             clearInterval(endGameId);
             levelSystem.score=0;
             clearStacks();
-            changeState(STATES.GAME_OVER);
+            vm.currentState(STATES.GAME_OVER);
         }, 3000);
     }
 
-    var changeState = function(state){
-        $(document.body).trigger("lb:stateChange", state);
+    var STATES = {
+        GAME: 0,
+        GAME_OVER: 1,
+        MAIN_MENU: 2,
+        HOSTING_SETUP: 3,
+        JOINING: 4,
+        HOST_WAITING: 5,
+        SINGLEPLAYER: 6,
+        JOIN_WAITING: 7,
+        HOST_READY: 8
     }
 
-    $(document).on("lb:stateChange", function(e, currentState){
-        $(".item").hide();
-        if (currentState == STATES.MAIN_MENU){
-            $("#main-menu").show();
-        }
-        else if (currentState == STATES.SINGLEPLAYER){
-            multiplayer = false;
-            changeState(STATES.GAME);
-        }
-        else if (currentState == STATES.GAME){
+    var MasterViewModel = function(game, network, ui) {
+        var self = this;
+
+        self.states = STATES;
+        self.currentState = ko.observable(STATES.MAIN_MENU);
+        self.serverName = ko.observable();
+        self.clientName = ko.observable();
+        self.roomName = ko.observable();
+
+        self.startGame = function() {
             setTimeout(function(){
-                $("#game").show();
+                self.currentState(STATES.GAME);
             }, 200);
             game.start();
-        }
-        else if (currentState == STATES.GAME_OVER){
-            $("#game-over").show();
-        }
-        else if (currentState == STATES.HOSTING){
+        };
+
+        // Main Menu Actions
+        self.singlePlayer = function() {
+            multiplayer = false;
+            self.startGame();
+        };
+
+        self.hostGame = function() {
             multiplayer = true;
             hosting = true;
-            $("#hosting").show();
-        }
-        else if (currentState == STATES.JOINING){
+            self.roomName(Math.random().toString(36).substr(2, 5));
+            self.currentState(STATES.HOSTING_SETUP);
+        };
+
+        self.joinGame = function() {
             multiplayer = true;
             hosting = false;
-            $("#joining").show();
+            self.currentState(STATES.JOINING);
         }
-        else if (currentState == STATES.HOST_WAITING){
-            $("#host-waiting").show();
+
+        //Game Over Menu Actions
+        self.home = function() {
+            self.currentState(STATES.MAIN_MENU);
         }
-    });
 
-    $("#singleplayer").on("click", function(){
-        changeState(STATES.GAME);
-    });
+        self.replay = function () {
+            self.startGame();
+        }
 
-    $("#restart").on("click", function(){
-        changeState(STATES.GAME);
-    })
+        //Hosting Menu Actions
+        self.startHosting = function() {
+            network.sendHostingMessage(self.serverName(), self.roomName());
+        }
 
-    $("#home").on("click", function(){
-        changeState(STATES.MAIN_MENU);
-    })
+        ui.onStartHostingResponse = function() {
+            console.log("test");
+            self.currentState(STATES.HOST_WAITING);
+        }
 
-    var randomRoomName = null;
-    var serverName = null;
-    var clientName = null;
+        //Joining Menu Actions
+        self.joiningGame = function() {
+            network.sendJoiningMessage(self.clientName(), self.roomName());
+        }
 
-    $("#host-game").on("click", function() {
-        changeState(STATES.HOSTING);
-        randomRoomName = Math.random().toString(36).substr(2, 5);
-        $("#room-name").empty();
-        $("#room-name").append("ROOM NAME: " + randomRoomName);
-    });
+        ui.onJoinResponse = function(message) {
+            if (hosting){
+                self.clientName(message.clientName);
+                self.currentState(STATES.HOST_READY);
+            } else {
+                self.serverName(message.serverName);
+                self.currentState(STATES.JOIN_WAITING);
+            }
+        }
 
-    $("#join-game").on("click", function() {
-        changeState(STATES.JOINING);
-    });
+        //Host Ready Menu Actions
+        self.hostStartGame = function() {
+            network.sendGameStartedByHost();
+            self.startGame();
+        }
 
-    $("#start-host-game").on("click", function() {
-        serverName = $("#server-name").val();
-        network.sendHostingMessage(serverName, randomRoomName);
-    });
+        ui.onStartGameByHost = function() {
+            self.startGame();
+        }
 
-    ui.makeHostWait = function() {
-        console.log("test");
-        $("#server-name-btn").empty();
-        $("#server-name-btn").append(serverName);
-        $("#room-name-btn").empty();
-        $("#room-name-btn").append("ROOM NAME: "+randomRoomName);
-        changeState(STATES.HOST_WAITING);
+        return self;
     }
 
-    changeState(STATES.MAIN_MENU);
+    var vm = new MasterViewModel(game, network, ui);
+    ko.applyBindings(vm);
+
 });

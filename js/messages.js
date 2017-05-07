@@ -13,6 +13,9 @@ var MESSAGES = {
     },
     SUCCESSFUL_ROOM_CREATION: {
         id: 5
+    },
+    GAME_DATA: {
+        id: 100
     }
 }
 

@@ -1,11 +1,13 @@
 var Network = function(host, ui) {
-    console.log("Connecting to server...")
+    console.log("Connecting to server...", host);
     var that = this;
 
-    this.receiveCallback = null;
+    this.gameDataCallback = null;
     this.closed = true;
 
     this.sock = new SockJS(host);
+    this.roomName = null;
+    this.isHost = null;
 
     this.sock.onopen = function() {
         console.log("Connected!");
@@ -13,16 +15,22 @@ var Network = function(host, ui) {
     };
 
     this.sock.onmessage = function(e) {
-        console.log('message', e.data);
+        // console.log('On Socket:', e.data);
         var message = JSON.parse(e.data)
 
         if (message.id == MESSAGES.SUCCESSFUL_ROOM_CREATION.id) {
-            ui.makeHostWait();
+            ui.onStartHostingResponse();
+        }
+        else if (message.id == MESSAGES.SUCCESSFUL_JOIN_RESPONSE.id) {
+            ui.onJoinResponse(message);
+        }
+        else if (message.id == MESSAGES.GAME_STARTED_BY_HOST.id) {
+            ui.onStartGameByHost();
+        }
+        else if (message.id == MESSAGES.GAME_DATA.id) {
+            that.gameDataCallback(message.data);
         }
 
-        // if (that.receiveCallback) {
-        //     that.receiveCallback(e.data);
-        // }
     };
 
     this.sock.onclose = function() {
@@ -30,22 +38,45 @@ var Network = function(host, ui) {
     };
 }
 
-Network.prototype.receiveCallback = function(callback) {
-    this.receiveCallback = callback;
+//maybe we can remove this?
+Network.prototype.setGameDataCallback = function(callback) {
+    this.gameDataCallback = callback;
 }
 
 Network.prototype.sendHostingMessage = function(serverName, roomName){
+    this.isHost = true;
+    this.roomName = roomName;
     this.sock.send(JSON.stringify({
         id: MESSAGES.HOSTING_GAME_REQUEST.id,
         serverName: serverName,
         roomName: roomName
     }));
-
-    // this.sock.send("test");
 }
 
-Network.prototype.sendData = function(data) {
-    this.sock.send(data);
+Network.prototype.sendJoiningMessage = function(clientName, roomName){
+    this.isHost = false
+    this.roomName = roomName;
+    this.sock.send(JSON.stringify({
+        id: MESSAGES.JOINING_GAME_REQUEST.id,
+        clientName: clientName,
+        roomName: roomName
+    }));
+}
+
+Network.prototype.sendGameStartedByHost = function(){
+    var message = MESSAGES.GAME_STARTED_BY_HOST;
+    message.roomName = this.roomName
+    message = JSON.stringify(message);
+    this.sock.send(message);
+}
+
+Network.prototype.sendGameData = function(data) {
+    var message = MESSAGES.GAME_DATA;
+    message.data = data;
+    message.isHost = this.isHost;
+    message.roomName = this.roomName;
+    message = JSON.stringify(message);
+    this.sock.send(message);
 }
 
 Network.prototype.closeSocket = function() {

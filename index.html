@@ -7,6 +7,7 @@
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
 		<title>Shooty Roads</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bigfishtv-turret/4.0.0/turret.min.css" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" href="css/main.css" />
 	</head>
 
@@ -14,6 +15,7 @@
 	<script src="lib/zepto.min.js"></script>
 	<script src="lib/moment.min.js"></script>
 	<script src="lib/underscore.min.js"></script>
+	<script src="lib/knockout-3.4.2.js"></script>
 
 	<script src="js/messages.js"></script>
 	<script src="js/utils.js"></script>
@@ -27,81 +29,162 @@
 	<script src="js/game.js"></script>
 
 	<body>
-		<canvas class="item game" id="game"></canvas>
+		<canvas
+			data-bind="visible: currentState() == states.GAME"
+			class="item game"
+			id="game">
+		</canvas>
 
-		<div class="item" id="game-over">
-			<h1 ><span id="taunt"> </span></h1>
-			<button class="btn m-item" style="background: #2980b9;" id="score">
+		<!-- ko if: currentState() == states.MAIN_MENU -->
+		<div class="item">
+			<button
+				data-bind="click: singlePlayer"
+				class="button button-primary b-item">
+				Single Player
+			</button>
+			<button
+				data-bind="click: hostGame"
+				class="button button-primary b-item">
+				Host Game
+			</button>
+			<button
+			 	data-bind="click: joinGame"
+				class="button button-primary b-item">
+				Join Game
+			</button>
+			<button
+				class="button button-primary m-item"
+				style="background: #2a2a2a;">
+			</button>
+		</div>
+		<!-- /ko -->
+
+		<!-- ko if: currentState() == states.GAME_OVER -->
+		<div class="item">
+			<button class="m-item">
 				<span id="score"></span>
 			</button>
-			<button class="btn b-item" style="background: #27ae60;" id="home" >
-				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
-					<path d="M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z" fill="#ecf0f1"></path>
-				</svg>
+			<button
+				data-bind="click: home"
+				class="b-item">
+				Home
 			</button>
-			<button class="btn b-item" style="background: #c0392b;" id="restart" >
-				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
-					<path d="M32 12h-12l4.485-4.485c-2.267-2.266-5.28-3.515-8.485-3.515s-6.219 1.248-8.485 3.515c-2.266 2.267-3.515 5.28-3.515 8.485s1.248 6.219 3.515 8.485c2.267 2.266 5.28 3.515 8.485 3.515s6.219-1.248 8.485-3.515c0.189-0.189 0.371-0.384 0.546-0.583l3.010 2.634c-2.933 3.349-7.239 5.464-12.041 5.464-8.837 0-16-7.163-16-16s7.163-16 16-16c4.418 0 8.418 1.791 11.313 4.687l4.687-4.687v12z" fill="#ecf0f1"></path>
-				</svg>
-			</button>
-		</div>
-
-		<div class="item" id="main-menu">
-			<h1>SHOOTY ROADS</h1>
-			<!-- <div class="btn-row"> -->
-				<button class="btn b-item" style="background: #27ae60;" id="singleplayer">
-					<!-- <svg style="line-height: 1px;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
-						<path d="M6 4l20 12-20 12z" fill="#ecf0f1"></path>
-					</svg> -->
-					SINGLE PLAYER
-				</button>
-				<button class="btn b-item" style="background: #8e44ad;" id="host-game">
-					HOST GAME
-				</button>
-				<button class="btn b-item" style="background: #c0392b;" id="join-game">
-					JOIN GAME
-				</button>
-				<!-- <button class="btn b-item" style="background: #c0392b; float:right;" id="leaderboards">
-					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
-						<path d="M26 6v-4h-20v4h-6v4c0 3.314 2.686 6 6 6 0.627 0 1.232-0.096 1.801-0.275 1.443 2.063 3.644 3.556 6.199 4.075v6.2h-2c-2.209 0-4 1.791-4 4h16c0-2.209-1.791-4-4-4h-2v-6.2c2.555-0.519 4.756-2.012 6.199-4.075 0.568 0.179 1.173 0.275 1.801 0.275 3.314 0 6-2.686 6-6v-4h-6zM6 13.625c-1.999 0-3.625-1.626-3.625-3.625v-2h3.625v2c0 1.256 0.232 2.457 0.655 3.565-0.213 0.039-0.431 0.060-0.655 0.060zM29.625 10c0 1.999-1.626 3.625-3.625 3.625-0.224 0-0.442-0.021-0.655-0.060 0.423-1.107 0.655-2.309 0.655-3.565v-2h3.625v2z" fill="#ecf0f1">
-						</path>
-					</svg>
-				</button> -->
-			<!-- </div> -->
-			<button class="btn m-item" style="background: #2a2a2a;" id="build"></button>
-			<audio src="sounds/death.wav" controls="none" id="sound-death" hidden/>
-		</div>
-
-		<div class="item" id="hosting">
-			<h1>SHOOTY ROADS</h1>
-			<input id="server-name" type="text" placeholder="Your name..."></input>
-			<button id="room-name" class="btn b-item" style="background: #2a2a2a;">
-
-			</button>
-			<button class="btn b-item" style="background: #2980b9;" id="start-host-game">
-				START HOSTING...
-			</button>
-			<button class="btn b-item" style="background: #c0392b;" id="start-host-game">
-				CANCEL
+			<button
+				data-bind="click: replay"
+				class="b-item">
+				Replay
 			</button>
 		</div>
+		<!-- /ko -->
 
-		<div class="item" id="host-waiting">
-			<h1>SHOOTY ROADS</h1>
-			<button id="server-name-btn" class="btn b-item" style="background: #2a2a2a;">
+		<!-- ko if: currentState() == states.HOSTING_SETUP -->
+		<div class="item">
+			<input
+			 	data-bind="value: serverName"
+				class="b-item"
+				type="text"
+				placeholder="Your name...">
+			</input>
+			<button
+				data-bind="text: 'Room name: ' + roomName()"
+				class="b-item">
 			</button>
-			<button id="room-name-btn" class="btn b-item" style="background: #2a2a2a;">
+			<button
+				data-bind="click: startHosting"
+				class="b-item">
+				Start Hosting...
 			</button>
-			<button class="btn b-item" style="background: #2980b9;">
-				WAITING FOR A PLAYER TO JOIN...
-			</button>
-			<button class="btn b-item" style="background: #c0392b;" id="start-host-game">
-				CANCEL
+			<button
+				class="b-item">
+				Cancel
 			</button>
 		</div>
+		<!-- /ko -->
 
-		<div class="item" id="joining">
-
+		<!-- ko if: currentState() == states.HOST_WAITING -->
+		<div class="item">
+			<button
+				data-bind="text: serverName"
+				class="b-item">
+			</button>
+			<button
+				data-bind="text: 'Room name: ' + roomName()"
+				class="b-item">
+			</button>
+			<button class="b-item">
+				Waiting for a player to join...
+			</button>
+			<button class="b-item">
+				Cancel
+			</button>
 		</div>
+		<!-- /ko -->
+
+		<!-- ko if: currentState() == states.HOST_READY -->
+		<div class="item">
+			<button
+				data-bind="text: serverName"
+				class="b-item">
+			</button>
+			<button
+				data-bind="text: 'Room name: ' + roomName()"
+				class="b-item">
+			</button>
+			<button
+				data-bind="text: clientName() + ' has joined!'"
+				class="b-item">
+			</button>
+			<button
+			 	data-bind="click: hostStartGame"
+				class="b-item">
+				Start Game!
+			</button>
+			<button class="b-item">
+				Cancel
+			</button>
+		</div>
+		<!-- /ko -->
+
+		<!-- ko if: currentState() == states.JOINING -->
+		<div class="item">
+			<input
+			 	data-bind="value: clientName"
+				type="text"
+				placeholder="Your name..."></input>
+			<input
+				data-bind="value: roomName"
+				type="text"
+				placeholder="Room name..."></input>
+			<button
+			 	data-bind="click: joiningGame"
+				class="b-item">
+				Join Room
+			</button>
+			<button class="b-item">
+				Cancel
+			</button>
+		</div>
+		<!-- /ko -->
+
+		<!-- ko if: currentState() == states.JOIN_WAITING -->
+		<div class="item">
+			<button
+				data-bind="text: clientName"
+				class="b-item">
+			</button>
+			<button
+				data-bind="text: serverName() + ' is hosting ' + roomName()"
+				class="b-item">
+			</button>
+			<button
+				data-bind="text: 'Waiting on ' + serverName() + ' to start the game...'"
+				class="b-item">
+			</button>
+			<button class="b-item">
+				Cancel
+			</button>
+		</div>
+		<!-- /ko -->
+
 	</body>
 </html>

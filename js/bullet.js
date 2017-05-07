@@ -7,9 +7,6 @@ var Bullet = function(x, y, speedX, speedY, fromEnemy){
 	this.speedX = BULLET_SPEED * speedX;
 	this.speedY = BULLET_SPEED * speedY;
 	this.fromEnemy = fromEnemy;
-	this.animatex = 0;
-	this.animatey = 0;
-	this.angle = 0;
 }
 
 Bullet.prototype.move = function(){

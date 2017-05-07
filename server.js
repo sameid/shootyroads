@@ -12,12 +12,7 @@ var ERRORS = {
     }
 }
 
-var rooms = {
-    "test": {
-        server: null,
-        client: null
-    }
-}
+var rooms = {};
 
 var send = function(conn, object){
     conn.write(JSON.stringify(object));
@@ -58,8 +53,16 @@ echo.on('connection', function(conn) {
             }
         }
         else if (message.id == MESSAGES.GAME_STARTED_BY_HOST.id) {
-            var r = rooms[messageName.roomName];
+            var r = rooms[message.roomName];
             send(r.client, MESSAGES.GAME_STARTED_BY_HOST);
+        }
+        else if (message.id == MESSAGES.GAME_DATA.id) {
+            var r = rooms[message.roomName];
+            if (message.isHost){
+                send(r.client, message);
+            } else {
+                send(r.server, message);
+            }
         }
 
     });
