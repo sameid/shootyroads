@@ -169,9 +169,9 @@ Zepto(function($){
     game.sendHostData = function() {
         var zip = {
             character: character,
-            enemyStack: enemyStack,
-            bulletStack: bulletStack,
-            particleStack: particleStack
+            // enemyStack: enemyStack,
+            input: mouse
+            // particleStack: particleStack
         };
         network.sendGameData(zip);
     }
@@ -179,7 +179,7 @@ Zepto(function($){
     game.sendJoinData = function() {
         var zip = {
             character: character,
-            bulletStack: bulletStack
+            input: mouse
         }
         network.sendGameData(zip);
     }
@@ -189,10 +189,7 @@ Zepto(function($){
             otherCharacter = new Character();
         }
         otherCharacter.setState(zip.character);
-
-        zip.bulletStack.forEach(function(bullet){
-            bulletStack.push(new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY, bullet.false));
-        });
+        createBullet(zip.input, otherCharacter);
     }
 
     game.receiveJoinData = function(zip) {
@@ -200,9 +197,7 @@ Zepto(function($){
             otherCharacter = new Character();
         }
         otherCharacter.setState(zip.character);
-        zip.bulletStack.forEach(function(bullet){
-            bulletStack.push(new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY, bullet.false));
-        });
+        createBullet(zip.input, otherCharacter);
         // enemyStack.concat(zip.enemyStack);
         // bulletStack.concat(zip.bulletStack);
         // particleStack.concat(zip.particleStack);
@@ -216,6 +211,8 @@ Zepto(function($){
     var enemyStack = [];
     var bulletStack = [];
     var particleStack = [];
+
+    var otherBulletStack = [];
 
     var randomFloat = function(min, max){
         return min + Math.random()*(max-min);
@@ -290,19 +287,19 @@ Zepto(function($){
     }
 
     //should be moved to bullet.js
-    var createBullet = function () {
-        if (mouse.down){
-            var xDiff = mouse.x - character.x;
-            var yDiff = mouse.y - character.y;
+    var createBullet = function (input, character) {
+        if (input.down){
+            var xDiff = input.x - character.x;
+            var yDiff = input.y - character.y;
 
             var angle = Math.atan(xDiff/yDiff);
-			if (mouse.x  < character.x) {
-				if (mouse.y < character.y) angle = Math.PI/2 - angle;
-				else if (mouse.y  > character.y) angle = (Math.PI/2 + angle)*-1;
+			if (input.x  < character.x) {
+				if (input.y < character.y) angle = Math.PI/2 - angle;
+				else if (input.y  > character.y) angle = (Math.PI/2 + angle)*-1;
 			}
-			else if (mouse.x  > character.x ) {
-				if (mouse.y < character.y ) angle = Math.PI/2 + (angle*-1);
-				else if (mouse.y > character.y) angle = (Math.PI/2 + angle)*-1;
+			else if (input.x  > character.x ) {
+				if (input.y < character.y ) angle = Math.PI/2 + (angle*-1);
+				else if (input.y > character.y) angle = (Math.PI/2 + angle)*-1;
 			}
 			var bulletSpeedX = -1 * Math.cos(angle);
 			var bulletSpeedY = -1 * Math.sin(angle);
@@ -344,19 +341,19 @@ Zepto(function($){
             }
         });
 
-        createBullet();
+        createBullet(mouse, character);
 
-        if (!multiplayer || (multiplayer && hosting)){
-            bulletStack.forEach(function(bullet, index, array){
-                bullet.move();
+        bulletStack.forEach(function(bullet, index, array){
+            bullet.move();
 
-                if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
-                    if (!MECHANICS.DEVELOPER_MODE){
-                        game.stop();
-                        lossCounter++;
-                    }
+            if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
+                if (!MECHANICS.DEVELOPER_MODE){
+                    game.stop();
+                    lossCounter++;
                 }
+            }
 
+            if (!multiplayer || (multiplayer && hosting)){
                 enemyStack.forEach(function(enemy, ei, ea){
                     if (collision(bullet, enemy) && !bullet.fromEnemy){
                         enemy.decreaseHealth();
@@ -365,12 +362,12 @@ Zepto(function($){
                         }, 10);
                     }
                 });
+            }
 
-                if (bullet.isOutside()){
-                    delete array[index];
-                }
-            });
-        }
+            if (bullet.isOutside()){
+                delete array[index];
+            }
+        });
 
 
         particleStack.forEach(function(particle, index, array){
@@ -399,8 +396,8 @@ Zepto(function($){
         });
 
         character.draw(ctx);
+
         if (multiplayer){
-            // console.log(otherCharacter);
             otherCharacter.draw(ctx);
         }
     }
@@ -500,7 +497,7 @@ Zepto(function($){
         self.hostGame = function() {
             multiplayer = true;
             hosting = true;
-            self.roomName(Math.random().toString(36).substr(2, 5));
+            self.roomName(Math.random().toString(36).substr(2, 1));
             self.currentState(STATES.HOSTING_SETUP);
         };
 
