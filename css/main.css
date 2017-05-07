@@ -29,6 +29,7 @@ body {
 #instructions {
     font-size: 20px;
 }
+
 #build {
     font-size: 12px;
     font-family: console;
@@ -47,22 +48,18 @@ body {
 h1 {
     display: block;
     text-align: center;
-    margin-top: 20%;
+    margin-top: 100px;
     color: #2c3e50;
     font-family: flat;
     font-size: 70px;
     font-weight: 100;
 }
 
-
-
-
 .btn {
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
     border-radius: 0px;
-    /*font-family: flat;*/
-    font-family: instructions;
+    font-family: flat;
     font-weight: 100;
     color: #ffffff;
     font-size: 30px;
@@ -77,21 +74,30 @@ h1 {
     width:80%;
     margin-left: auto;
     margin-right: auto;
+    display: block;
 }
 
 .b-item {
+    display: block;
     margin-top: 15px;
-    width:48%;
+    width: 400px;
     margin-left: auto;
     margin-right: auto;
-
-
 }
 
 .m-item {
     display: block;
-    margin-top: 15px;
+    margin-top: 50px;
     margin-left: auto;
     margin-right: auto;
-    width: 80%;
+    width: 500px;
+}
+
+.game {
+    box-shadow: 0px 0px 30px grey;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1600px;
 }

@@ -1,5 +1,5 @@
 var getCurrentBuild = function(callback){
-	$.getJSON('https://api.github.com/repos/sameid/closecall-tilt/git/refs/heads/gh-pages', function(data){
+	$.getJSON('https://api.github.com/repos/sameid/shootyroads/git/refs/heads/master', function(data){
   		// console.log(data.object.url);
   		$.getJSON(data.object.url, function(_data){
   			var build = {
@@ -7,7 +7,7 @@ var getCurrentBuild = function(callback){
   				sha: _data.sha,
   				message: _data.message
   			}
-  			$.getJSON("https://api.github.com/repos/sameid/closecall-tilt/compare/3008595c97686c63216afe6bd0eca6d27a72d128..." + build.sha, function(__data){
+  			$.getJSON("https://api.github.com/repos/sameid/shootyroads/compare/ca2ad1e73a04a3228e56c5419d7ab7a6fe1e48bc..." + build.sha, function(__data){
 
   				var ver = __data.total_commits + 1;
   				build.version = ver;
@@ -16,20 +16,3 @@ var getCurrentBuild = function(callback){
   		});
 	})
 }
-
-var getOS = function() {
-  	var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-  	if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) )
-  	{
-    	return 'iOS';
-  	}
-  	else if( userAgent.match( /Android/i ) )
-  	{
-    	return 'Android';
-  	}
-  	else
-  	{
-    	return 'unknown';
-  	}
-}
-

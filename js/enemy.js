@@ -1,19 +1,16 @@
-// var sheet = new Image();
-// sheet.src = "assets/sprites/enemy1/_spritesheet.png"
-
 function polygon(ctx, x, y, radius, sides, startAngle, anticlockwise) {
-  if (sides < 3) return;
-  var a = (Math.PI * 2)/sides;
-  a = anticlockwise?-a:a;
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.rotate(startAngle);
-  ctx.moveTo(radius,0);
-  for (var i = 1; i < sides; i++) {
-    ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
-  }
-  ctx.closePath();
-  ctx.restore();
+    if (sides < 3) return;
+    var a = (Math.PI * 2)/sides;
+    a = anticlockwise?-a:a;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(startAngle);
+    ctx.moveTo(radius,0);
+    for (var i = 1; i < sides; i++) {
+        ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+    }
+    ctx.closePath();
+    ctx.restore();
 }
 
 var enemyLibrary = {
@@ -28,7 +25,6 @@ var enemyLibrary = {
 			//behaviour;
 		},
 		drawConfig: function(ctx, that){
-
 			that.angle += (1.5) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
@@ -40,7 +36,6 @@ var enemyLibrary = {
 			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 3, that.angle  );
 			ctx.fillStyle = "#2ecc71";
 			ctx.fill();
-
 		}
 	},
 	"square": {
@@ -216,15 +211,10 @@ var enemyLibrary = {
 }
 
 var Enemy = function(type, chooseSpawn, x, y){
-
-	// console.log("created enemy");
-
 	this.radius = SCALAR * 0.04;
 	this.direction = 0;
 	this.speedX = 0;
 	this.speedY = 0;
-
-	console.log(type);
 
 	this.type = type;
 	this.speed = enemyLibrary[type].speed;
@@ -252,9 +242,6 @@ var Enemy = function(type, chooseSpawn, x, y){
 		this.x = x;
 		this.y = y;
 	}
-
-
-
 }
 
 Enemy.prototype.behaviour = function(enemyStack, bulletStack, character){
@@ -262,10 +249,7 @@ Enemy.prototype.behaviour = function(enemyStack, bulletStack, character){
 }
 
 Enemy.prototype.draw = function(ctx){
-
-	// console.log(this.type);
 	enemyLibrary[this.type].drawConfig(ctx, this);
-
 }
 
 Enemy.prototype.decreaseHealth = function(){
@@ -287,11 +271,7 @@ Enemy.prototype.inScreen = function(){
 }
 
 Enemy.prototype.rs = function(){
-
 	return this.speed;
-	// var speed= Math.floor(Math.random() *(MECHANICS.ENEMY_MAX_SPEED - MECHANICS.ENEMY_MIN_SPEED) + MECHANICS.ENEMY_MIN_SPEED);
-
-
 }
 
 Enemy.prototype.calculateSpeed = function(){
@@ -305,7 +285,6 @@ Enemy.prototype.calculateDirection = function(character){
 	down = (character.y + character.radius) - (this.y + this.radius);
 	var angle = 0.0;
 	angle = (Math.atan(top / down));
-
 
 	if (character.x + character.radius < this.x + this.radius ) {
 		if (character.y + character.radius < this.y + this.radius) {
@@ -330,5 +309,4 @@ Enemy.prototype.move = function(character){
 	this.calculateSpeed();
 	this.x -= this.speedX;
 	this.y -= this.speedY;
-
 }

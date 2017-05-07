@@ -1,0 +1,16 @@
+{
+    "name": "shootyroads",
+    "main": "server.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/sameid/shootyroads"
+    },
+    "scripts": {
+        "start": "node server.js"
+    },
+    "author": "Sameid Usmani <sameidusmani.com>",
+    "license": "MIT",
+    "dependencies": {
+        "sockjs": "*"
+    }
+}
