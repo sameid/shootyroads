@@ -48,7 +48,7 @@ var resetMechanics = function(){
         ENEMY_HEALTH: 25,//arbitrary value
         SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
         ENEMY_CREATION_RATE: 4000, //milliseconds (global)
-        DEVELOPER_MODE: true, //(global)
+        DEVELOPER_MODE: false, //(global)
         ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
         ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
         RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
@@ -114,12 +114,12 @@ Zepto(function($){
     var $game = $("#game");
     var ctx = $game.get(0).getContext("2d");
 
-    var network = new Network("http://localhost:3000/echo", ui);
+    var network = new Network("http://192.168.0.21:3000/echo", ui);
     var multiplayer = false;
     var hosting = false;
 
     game.start = function(){
-        console.log("game started");
+        console.log("Game Started!");
 
         resetMechanics();
         resetLevelSystem();
@@ -147,7 +147,7 @@ Zepto(function($){
             }
         }
 
-        if (!multiplayer || hosting) {
+        if (game.isLogic()) {
             game.enemyGeneratorId = setInterval(createEnemy, MECHANICS.ENEMY_CREATION_RATE);
         }
 
@@ -169,9 +169,9 @@ Zepto(function($){
     game.sendHostData = function() {
         var zip = {
             character: character,
-            // enemyStack: enemyStack,
-            input: mouse
-            // particleStack: particleStack
+            enemyStack: enemyStack,
+            input: mouse,
+            levelSystem: levelSystem
         };
         network.sendGameData(zip);
     }
@@ -193,14 +193,67 @@ Zepto(function($){
     }
 
     game.receiveJoinData = function(zip) {
+        levelSystem = zip.levelSystem;
         if (!otherCharacter) {
             otherCharacter = new Character();
         }
         otherCharacter.setState(zip.character);
         createBullet(zip.input, otherCharacter);
-        // enemyStack.concat(zip.enemyStack);
-        // bulletStack.concat(zip.bulletStack);
-        // particleStack.concat(zip.particleStack);
+
+        // var networkEnemyStack = _.map(zip.enemyStack, function(enemy) {
+        //     return enemy.id;
+        // });
+        //
+        // var localEnemyStack = _.map(enemyStack, function(enemy) {
+        //     return enemy.id;
+        // });
+        //
+        // var newEnemyStackIDs = _.difference(networkEnemyStack, localEnemyStack);
+        // var oldEnemyStackIDs = _.difference(localEnemyStack, networkEnemyStack);
+        // var updateEnemyStackIDs = _.intersection(networkEnemyStack, localEnemyStack);
+        //
+        // zip.enemyStack.forEach(function (enemy){
+        //     newEnemyStackIDs.forEach(function(ne){
+        //         if (ne == enemy.id){
+        //             console.log("create new enemy")
+        //             var newEnemy = new Enemy(enemy.type, null, enemy.x, enemy.y, enemy.id);
+        //             newEnemy.setState(enemy);
+        //             enemyStack.push(newEnemy);
+        //         }
+        //     })
+        // });
+        //
+        // enemyStack.forEach(function(enemy, index, array){
+        //     oldEnemyStackIDs.forEach(function(oe) {
+        //         if (oe == enemy.id){
+        //             console.log("remove old enemy");
+        //             // delete array[index];
+        //             enemy.health = -1;
+        //         }
+        //     });
+        //
+        //     updateEnemyStackIDs.forEach(function (ue){
+        //         if (ue == enemy.id){
+        //             console.log("update old enemy");
+        //             var networkEnemy = _.findWhere(networkEnemyStack, {
+        //                 id: ue
+        //             })
+        //             enemy.setState(networkEnemy);
+        //         }
+        //     });
+        // });
+
+        enemyStack = _.map(zip.enemyStack, function(enemy) {
+            if (enemy){
+                var newEnemy = new Enemy(enemy.type, enemy.character, enemy.x, enemy.y, enemy.id);
+                newEnemy.setState(enemy);
+                if (newEnemy.isDead()) {
+                    createExplosion(newEnemy.x, newEnemy.y, "#525252");
+                    createExplosion(newEnemy.x, newEnemy.y, "#FFA318");
+                }
+                return newEnemy;
+            }
+        });
     }
 
     $game.on("touchstart", function(e){
@@ -211,8 +264,6 @@ Zepto(function($){
     var enemyStack = [];
     var bulletStack = [];
     var particleStack = [];
-
-    var otherBulletStack = [];
 
     var randomFloat = function(min, max){
         return min + Math.random()*(max-min);
@@ -225,24 +276,27 @@ Zepto(function($){
         ctx.fillText(levelSystem.score, game.width/2, game.height - 300);
     }
 
+    var toggleCharacter = false;
+
     var createEnemy = function(){
         checkLevel();
-
         if (levelSystem.spawnCount < 5){
             levelSystem.spawnCount++;
             var type = levelSystem.spawnStack[Math.floor(Math.random() * levelSystem.spawnStack.length)];
-            console.log("createEnemy type", type);
-            enemyStack.push(new Enemy(type));
+            enemyStack.push(new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character ));
+            toggleCharacter = !toggleCharacter;
         }
     }
 
     var collision = function(o1, o2){
+        if (_.isNull(o1) || _.isNull(o2)) return false;
         var dx = o2.x - o1.x;
         var dy = o2.y - o1.y;
         var radii = o2.radius + o1.radius;
         if (( dx * dx )  + ( dy * dy ) < radii * radii ){
             return true;
         }
+        return false;
     }
 
     var createExplosion = function(x, y, color){
@@ -258,6 +312,7 @@ Zepto(function($){
         {
             var particle = new Particle();
 
+            //refactor below to the particle
             particle.x = x;
             particle.y = y;
 
@@ -308,7 +363,6 @@ Zepto(function($){
     }
 
     game.update = function(){
-
         // if (MECHANICS.INCREASE_DIFFICULTY &&
         // 	score <= MECHANICS.BLOCK_DIFFICULTY_INCREASE &&
         // 	score != 0 &&
@@ -319,25 +373,34 @@ Zepto(function($){
         // 	increaseDifficulty();
         // }
 
-
         enemyStack.forEach(function(enemy, index, array){
-            enemy.behaviour(enemyStack, bulletStack, character);
-            enemy.move(character);
-            if (collision(character, enemy)){
-                if (!MECHANICS.DEVELOPER_MODE){
-                    game.stop();
-                    lossCounter++;
-                }
+
+            if (game.isLogic()){
+                enemy.behaviour(enemyStack, bulletStack, character);
             }
 
-            if (enemy.isDead()) {
-                createExplosion(enemy.x, enemy.y, "#525252");
-                createExplosion(enemy.x, enemy.y, "#FFA318");
-                delete array[index];
+            if (enemy) {
+                enemy.move();
+            }
 
-                levelSystem.score++;
-                difficultyLock = false;
-                if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
+            if (game.isLogic()){
+                if (collision(character, enemy) || collision(otherCharacter, enemy)){
+                    if (!MECHANICS.DEVELOPER_MODE){
+                        network.sendGameOver();
+                        game.stop();
+                        lossCounter++;
+                    }
+                }
+
+                if (enemy.isDead()) {
+                    createExplosion(enemy.x, enemy.y, "#525252");
+                    createExplosion(enemy.x, enemy.y, "#FFA318");
+                    delete array[index];
+
+                    levelSystem.score++;
+                    difficultyLock = false;
+                    if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
+                }
             }
         });
 
@@ -348,12 +411,13 @@ Zepto(function($){
 
             if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
                 if (!MECHANICS.DEVELOPER_MODE){
+                    network.sendGameOver();
                     game.stop();
                     lossCounter++;
                 }
             }
 
-            if (!multiplayer || (multiplayer && hosting)){
+            if (game.isLogic()){
                 enemyStack.forEach(function(enemy, ei, ea){
                     if (collision(bullet, enemy) && !bullet.fromEnemy){
                         enemy.decreaseHealth();
@@ -388,7 +452,9 @@ Zepto(function($){
         });
 
         enemyStack.forEach(function(enemy){
-            enemy.draw(ctx);
+            if (enemy){
+                enemy.draw(ctx);
+            }
         });
 
         particleStack.forEach(function(particle, index, array){
@@ -446,18 +512,22 @@ Zepto(function($){
             window.localStorage.setItem("highScore", highScore);
         }
 
-        $("#taunt").empty();
-        // $("#taunt").append(taunts[Math.floor(Math.random()*taunts.length)]);
-        $("#taunt").append("GAME OVER");
-        $("#score").empty();
-        $("#score").append("SCORE: " + levelSystem.score + "<br> BEST: " + highScore);
-
         setTimeout(function(){
             clearInterval(endGameId);
             levelSystem.score=0;
             clearStacks();
-            vm.currentState(STATES.GAME_OVER);
+
+            if (game.isLogic()) {
+                vm.currentState(STATES.GAME_OVER);
+            } else {
+                vm.currentState(STATES.JOIN_WAITING);
+            }
+
         }, 3000);
+    }
+
+    game.isLogic = function() {
+        return !multiplayer || (multiplayer && hosting);
     }
 
     var STATES = {
@@ -513,6 +583,9 @@ Zepto(function($){
         }
 
         self.replay = function () {
+            if (multiplayer){
+                network.sendGameStartedByHost();
+            }
             self.startGame();
         }
 
@@ -549,6 +622,15 @@ Zepto(function($){
 
         ui.onStartGameByHost = function() {
             self.startGame();
+        }
+
+        ui.onGameOver = function() {
+            game.stop();
+            if (hosting){
+
+            } else {
+
+            }
         }
 
         return self;

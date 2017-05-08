@@ -64,6 +64,14 @@ echo.on('connection', function(conn) {
                 send(r.server, message);
             }
         }
+        else if (message.id == MESSAGES.GAME_OVER.id) {
+            var r = rooms[message.roomName];
+            if (message.isHost){
+                send(r.client, message);
+            } else {
+                send(r.server, message);
+            }
+        }
 
     });
 

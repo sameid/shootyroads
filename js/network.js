@@ -30,6 +30,9 @@ var Network = function(host, ui) {
         else if (message.id == MESSAGES.GAME_DATA.id) {
             that.gameDataCallback(message.data);
         }
+        else if (message.id == MESSAGES.GAME_OVER.id) {
+            ui.onGameOver();
+        }
 
     };
 
@@ -73,6 +76,14 @@ Network.prototype.sendGameStartedByHost = function(){
 Network.prototype.sendGameData = function(data) {
     var message = MESSAGES.GAME_DATA;
     message.data = data;
+    message.isHost = this.isHost;
+    message.roomName = this.roomName;
+    message = JSON.stringify(message);
+    this.sock.send(message);
+}
+
+Network.prototype.sendGameOver = function() {
+    var message = MESSAGES.GAME_OVER;
     message.isHost = this.isHost;
     message.roomName = this.roomName;
     message = JSON.stringify(message);

@@ -210,7 +210,9 @@ var enemyLibrary = {
 	}
 }
 
-var Enemy = function(type, chooseSpawn, x, y){
+var Enemy = function(type, followCharacter, x, y, id){
+
+    this.id = id || Math.floor(Math.random()*10000)
 	this.radius = SCALAR * 0.04;
 	this.direction = 0;
 	this.speedX = 0;
@@ -219,6 +221,7 @@ var Enemy = function(type, chooseSpawn, x, y){
 	this.type = type;
 	this.speed = enemyLibrary[type].speed;
 	this.health = enemyLibrary[type].health;
+    this.character = followCharacter;
 	enemyLibrary[type].init(this);
 
 	var radius = 10 + Math.sqrt (Math.pow (game.width/2, 2) + Math.pow (game.height/2, 2));
@@ -235,13 +238,8 @@ var Enemy = function(type, chooseSpawn, x, y){
 		tempY *= -1;
 	}
 
-	this.x = game.width /2 + tempX;
-	this.y = game.height/2 + tempY;
-
-	if (chooseSpawn){
-		this.x = x;
-		this.y = y;
-	}
+	this.x = x || game.width /2 + tempX;
+	this.y = y || game.height/2 + tempY;
 }
 
 Enemy.prototype.behaviour = function(enemyStack, bulletStack, character){
@@ -279,7 +277,8 @@ Enemy.prototype.calculateSpeed = function(){
 	this.speedY = this.rs()* (Math.sin(this.direction));
 }
 
-Enemy.prototype.calculateDirection = function(character){
+Enemy.prototype.calculateDirection = function(){
+    var character = this.character;
 	var down, top;
 	top = (character.x + character.radius) - (this.x+ this.radius);
 	down = (character.y + character.radius) - (this.y + this.radius);
@@ -309,4 +308,13 @@ Enemy.prototype.move = function(character){
 	this.calculateSpeed();
 	this.x -= this.speedX;
 	this.y -= this.speedY;
+}
+
+Enemy.prototype.setState = function(json){
+    var keys = _.keys(json);
+    keys.forEach(function(key){
+        if (this[key]) {
+            this[key] = json[key];
+        }
+    });
 }

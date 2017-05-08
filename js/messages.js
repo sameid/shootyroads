@@ -16,6 +16,9 @@ var MESSAGES = {
     },
     GAME_DATA: {
         id: 100
+    },
+    GAME_OVER: {
+        id: 101
     }
 }
 
