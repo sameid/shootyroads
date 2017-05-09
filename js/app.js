@@ -1,16 +1,3 @@
-var STATES = {
-    GAME: 0,
-    GAME_OVER: 1,
-    MAIN_MENU: 2,
-    HOSTING_SETUP: 3,
-    JOINING: 4,
-    HOST_WAITING: 5,
-    SINGLEPLAYER: 6,
-    JOIN_WAITING: 7,
-    HOST_READY: 8,
-    MULTIPLAYER: 9
-}
-
 var MasterViewModel = function(game, network, ui) {
     var self = this;
 

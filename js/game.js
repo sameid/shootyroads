@@ -1,15 +1,4 @@
-var SCALAR = 0;
 var MECHANICS = {};
-var DIRECTION = {
-    87: "up",
-    83: "down",
-    68: "right",
-    65: "left"
-};
-var COLORS = {
-    BG: "#ecf0f1"
-}
-
 var difficultyLock = false;
 var levelSystem = {};
 var multiplayer = false;
