@@ -1,11 +1,26 @@
 var BULLET_SPEED = 30;//needs to be scalar
 
-var Bullet = function(x, y, speedX, speedY, fromEnemy){
+var Bullet = function(fromX, fromY, toX, toY, fromEnemy){
+	var xDiff = toX - fromX;
+	var yDiff = toY - fromY;
+
+	var angle = Math.atan(xDiff/yDiff);
+	if (toX  < fromX) {
+		if (toY < fromY) angle = Math.PI/2 - angle;
+		else if (toY  > fromY) angle = (Math.PI/2 + angle)*-1;
+	}
+	else if (toX  > fromX ) {
+		if (toY < fromY ) angle = Math.PI/2 + (angle*-1);
+		else if (toY > fromY) angle = (Math.PI/2 + angle)*-1;
+	}
+	var bulletSpeedX = -1 * Math.cos(angle);
+	var bulletSpeedY = -1 * Math.sin(angle);
+
 	this.x = x;
 	this.y = y;
 	this.radius = SCALAR * 0.02;
-	this.speedX = BULLET_SPEED * speedX;
-	this.speedY = BULLET_SPEED * speedY;
+	this.speedX = BULLET_SPEED * bulletSpeedX;
+	this.speedY = BULLET_SPEED * bulletSpeedY;
 	this.fromEnemy = fromEnemy;
 }
 
