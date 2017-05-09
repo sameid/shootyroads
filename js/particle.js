@@ -10,8 +10,7 @@ var Particle = function(){
 	this.dead = false;
 }
 
-Particle.prototype.update = function()
-{
+Particle.prototype.update = function() {
 	var ms = 1000/60;
 
 	// shrinking
@@ -28,8 +27,7 @@ Particle.prototype.update = function()
 	this.y += this.velocityY * ms/1000.0;
 };
 
-Particle.prototype.draw = function(ctx)
-{
+Particle.prototype.draw = function(ctx) {
 	// translating the 2D context to the particle coordinates
 	ctx.save();
 	ctx.translate(this.x, this.y);
@@ -46,6 +44,6 @@ Particle.prototype.draw = function(ctx)
 	ctx.restore();
 };
 
-Particle.prototype.isDead =function() {
+Particle.prototype.isDead = function() {
 	return this.dead;
 }

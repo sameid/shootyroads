@@ -15,7 +15,6 @@ var Network = function(host, ui) {
     };
 
     this.sock.onmessage = function(e) {
-        // console.log('On Socket:', e.data);
         var message = JSON.parse(e.data)
 
         if (message.id == MESSAGES.SUCCESSFUL_ROOM_CREATION.id) {
@@ -33,7 +32,6 @@ var Network = function(host, ui) {
         else if (message.id == MESSAGES.GAME_OVER.id) {
             ui.onGameOver();
         }
-
     };
 
     this.sock.onclose = function() {

@@ -42,8 +42,8 @@ var resetMechanics = function(){
     MECHANICS = {
         ENEMY_HEALTH: 25,//arbitrary value
         SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
-        ENEMY_CREATION_RATE: 5000, //milliseconds (global)
-        DEVELOPER_MODE: true, //(global)
+        ENEMY_CREATION_RATE: 2000, //milliseconds (global)
+        DEVELOPER_MODE: false, //(global)
         ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
         ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
         RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
@@ -94,7 +94,6 @@ Zepto(function($){
     var enemyDeath = document.getElementById("sound-death");
 
     var character = {};
-    // var score = 0;
     var lossCounter = 0;
 
     var game = {};
@@ -104,28 +103,41 @@ Zepto(function($){
 
     var network = new Network("http://192.168.0.21:3000/echo", ui);
 
+    /**
+     * Handles the over game initialization, can be run many times.
+     */
     game.start = function(){
         console.log("Game Started!");
 
+        // Reset the overall mechanics and level system for the game
         resetMechanics();
         resetLevelSystem();
 
+        // Take the game out of a possible limbo state
         game.limbo = false;
         ctx.imageSmoothingEnabled = false;
 
+        // Set the game to a proprietary width and height, could be something else for different platforms
         game.width = 1600;
         game.height = 900;
 
+        // Create a overall multiplier for all other objects in the game to use as reference.
         SCALAR = game.height/1.5;
 
+        // Set the HTML attributes for the canvas element
         $game.attr("width", game.width);
         $game.attr("height", game.height);
         $game.css('background-color', COLORS.BG);
         $game.css('left', '0');
 
+        // Create a new local character (the player)
         character = new Character();
 
         if (multiplayer) {
+            // If it's multiplayer we need to intialize the otherCharacter (other player)
+            otherCharacter = new Character();
+
+            // Based on whether or not this user is hosting, setup up the correct handler to listen to the WebSocket
             if (hosting){
                 network.setGameDataCallback(game.receiveHostData);
             } else {
@@ -133,15 +145,21 @@ Zepto(function($){
             }
         }
 
+        // If this user handles the game computation, then they should be in charge of creating the enemies
         if (game.isComputer()) {
             game.enemyGeneratorId = setInterval(createEnemy, MECHANICS.ENEMY_CREATION_RATE);
         }
 
+        // Start the game loop after 300 ms
         setTimeout(function(){
+            // Running the game loop at 1000 ms/ 60, ensures the game runs at 60FPS
             game.id = setInterval(game.loop, 1000 / 60);
         }, 300);
     }
 
+    /**
+     * Handles the network operations needed to be performed in the game loop
+     */
     game.network = function() {
         if (multiplayer) {
             if (hosting) {
@@ -155,7 +173,6 @@ Zepto(function($){
     game.sendHostData = function() {
         var zip = {
             character: character,
-            // enemyStack: enemyStack,
             input: mouse,
             levelSystem: levelSystem
         };
@@ -171,10 +188,6 @@ Zepto(function($){
     }
 
     game.receiveHostData = function(zip) {
-        if (!otherCharacter) {
-            otherCharacter = new Character();
-        }
-
         if (zip.character) {
             otherCharacter.setState(zip.character);
         }
@@ -189,10 +202,6 @@ Zepto(function($){
             levelSystem = zip.levelSystem;
         }
 
-        if (!otherCharacter) {
-            otherCharacter = new Character();
-        }
-
         if (zip.character) {
             otherCharacter.setState(zip.character);
         }
@@ -204,8 +213,8 @@ Zepto(function($){
         if (zip.newEnemy) {
             var enemy = zip.newEnemy;
             // console.log("TEST: Received enemy from host", enemy.id, otherCharacter);
-
-            var newEnemy = new Enemy(enemy.type, otherCharacter, enemy.x, enemy.y, enemy.id);
+            var followHost = zip.followHost;
+            var newEnemy = new Enemy(enemy.type, followHost ? otherCharacter : character, enemy.x, enemy.y, enemy.id);
             newEnemy.setState(enemy);
             enemyStack.push(newEnemy);
         }
@@ -213,7 +222,6 @@ Zepto(function($){
         if (zip.deadEnemy) {
             enemyStack.forEach(function(enemy, index, array) {
                 if (enemy.id == zip.deadEnemy.id){
-                    //delete array[index];
                     enemy.health = -1;
                 }
             });
@@ -237,23 +245,19 @@ Zepto(function($){
 
     var createEnemy = function(){
         checkLevel();
-
         if (levelSystem.spawnCount < 5){
             levelSystem.spawnCount++;
             var type = levelSystem.spawnStack[Math.floor(Math.random() * levelSystem.spawnStack.length)];
-            // var enemy = new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character);
-            var enemy = new Enemy(type, character);
-
-            console.log("TEST: Enemy created by host", enemy.id);
+            var enemy = new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character);
+            // console.log("TEST: Enemy created by host", enemy.id);
 
             network.sendGameData({
-                newEnemy: enemy
+                newEnemy: enemy,
+                followHost: !toggleCharacter
             });
 
             enemyStack.push(enemy);
             toggleCharacter = !toggleCharacter;
-
-
         }
     }
 
@@ -263,6 +267,7 @@ Zepto(function($){
         }
     }
 
+    //refactor to Explosion object
     var createExplosion = function(x, y, color){
         var minSize = SCALAR * 0.04;
         var maxSize = SCALAR * 0.06;
@@ -439,7 +444,7 @@ Zepto(function($){
     }
 
     game.stop = function(){
-        console.log("game stopped");
+        console.log("Game stopped.");
 
         clearInterval(game.id);
         clearInterval(game.enemyGeneratorId);

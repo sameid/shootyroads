@@ -1,4 +1,4 @@
-var BULLET_SPEED = 30;//needs to be scalar
+var BULLET_SPEED = 30;
 
 var Bullet = function(fromX, fromY, toX, toY, fromEnemy){
 	var xDiff = toX - fromX;

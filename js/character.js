@@ -1,5 +1,3 @@
-//4% factoring
-
 var Character = function(){
 	this.radius = SCALAR * 0.04;
 	this.x = game.width/2;
