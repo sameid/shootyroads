@@ -26,16 +26,6 @@ body {
     background-color: #ecf0f1;
 }
 
-#instructions {
-    font-size: 20px;
-}
-
-#build {
-    font-size: 12px;
-    font-family: console;
-    text-align: left;
-}
-
 #game {
     image-rendering: optimizeSpeed; // Older versions of FF
     image-rendering: -moz-crisp-edges; // FF 6.0+
@@ -45,36 +35,30 @@ body {
     -ms-interpolation-mode: nearest-neighbor; // IE
 }
 
-.h-item {
-    display: block;
-    text-align: center;
-    margin-top: 100px;
-    color: #2c3e50;
+.item {
+    position: fixed;
+    top: 43%;
+    right: 20%;
+    max-width: 500px;
+}
+
+.title {
     font-size: 100px;
     font-weight: 100;
+    position: fixed;
+    top: 30%;
+    left: 20%;
 }
 
-.btn-row {
-    width:80%;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-}
-
-.b-item {
-    display: block;
-    margin-top: 15px;
-    width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.m-item {
-    display: block;
-    margin-top: 50px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 500px;
+.build-item {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    font-family: console;
+    font-size: 12px;
+    text-align: right;
+    font-weight: 100;
+    padding: 10px;
 }
 
 .game {

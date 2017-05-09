@@ -90,10 +90,8 @@ var enemyLibrary = {
 				var bulletSpeedX = Math.cos(angle) * (0.3);
 				var bulletSpeedY = Math.sin(angle) * (0.3);
 
-
-				console.log("created enemy bullet");
 				// _.throttle(function(){
-					bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
+					// bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
 				// }, 100, true);
 
 			}
@@ -125,7 +123,7 @@ var enemyLibrary = {
 
 			if (that.frame % 300 == 0){
 				that.frame = 0;
-				bulletStack.push(new Bullet(that.x, that.y, 0, 0, true));
+				// bulletStack.push(new Bullet(that.x, that.y, 0, 0, true));
 			}
 		},
 		drawConfig: function(ctx, that){
@@ -151,9 +149,9 @@ var enemyLibrary = {
 		},
 		behaviour: function(enemyStack, bulletStack, character, that){
 			if (that.health < 0){
-				enemyStack.push(new Enemy("triangle", true, that.x + that.radius + (that.radius * 0.2), that.y));
-				enemyStack.push(new Enemy("triangle", true, that.x - that.radius + (that.radius * 0.2), that.y));
-				enemyStack.push(new Enemy("triangle", true, that.x , that.y + that.radius + (that.radius * 0.2)));
+				// enemyStack.push(new Enemy("triangle", true, that.x + that.radius + (that.radius * 0.2), that.y));
+				// enemyStack.push(new Enemy("triangle", true, that.x - that.radius + (that.radius * 0.2), that.y));
+				// enemyStack.push(new Enemy("triangle", true, that.x , that.y + that.radius + (that.radius * 0.2)));
 			}
 
 		},
@@ -190,7 +188,7 @@ var enemyLibrary = {
 					var bulletSpeedX = Math.cos(that.shootingAngle) * (0.3);
 					var bulletSpeedY = Math.sin(that.shootingAngle) * (0.3);
 
-					bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
+					// bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
 			}
 
 		},

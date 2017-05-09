@@ -16,8 +16,8 @@ var Bullet = function(fromX, fromY, toX, toY, fromEnemy){
 	var bulletSpeedX = -1 * Math.cos(angle);
 	var bulletSpeedY = -1 * Math.sin(angle);
 
-	this.x = x;
-	this.y = y;
+	this.x = fromX;
+	this.y = fromY;
 	this.radius = SCALAR * 0.02;
 	this.speedX = BULLET_SPEED * bulletSpeedX;
 	this.speedY = BULLET_SPEED * bulletSpeedY;

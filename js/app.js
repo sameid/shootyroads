@@ -7,7 +7,8 @@ var STATES = {
     HOST_WAITING: 5,
     SINGLEPLAYER: 6,
     JOIN_WAITING: 7,
-    HOST_READY: 8
+    HOST_READY: 8,
+    MULTIPLAYER: 9
 }
 
 var MasterViewModel = function(game, network, ui) {
@@ -18,6 +19,12 @@ var MasterViewModel = function(game, network, ui) {
     self.serverName = ko.observable();
     self.clientName = ko.observable();
     self.roomName = ko.observable();
+
+    self.buildHtml = ko.observable();
+    getCurrentBuild(function(data){
+        var date = moment(data.date).format('MMMM Do YYYY, h:mm a');
+        self.buildHtml("Version rc"+ data.version + " (alpha)<br> Last updated " + date + "<br> Build: " + data.message );
+    });
 
     self.startGame = function() {
         setTimeout(function(){
@@ -30,6 +37,10 @@ var MasterViewModel = function(game, network, ui) {
     self.singlePlayer = function() {
         multiplayer = false;
         self.startGame();
+    };
+
+    self.multiplayer = function() {
+        self.currentState(STATES.MULTIPLAYER);
     };
 
     self.hostGame = function() {

@@ -32,30 +32,52 @@
 	<body>
 		<canvas
 			data-bind="visible: currentState() == states.GAME"
-			class="item game"
+			class="game"
 			id="game">
 		</canvas>
+
+		<!-- ko if: currentState() != states.GAME -->
+		<div
+			data-bind="html: buildHtml"
+			class="build-item">
+		</div>
+
+		<div class="title">
+			Shooty<br />
+			Roads
+		</div>
+		<!-- /ko -->
 
 		<!-- ko if: currentState() == states.MAIN_MENU -->
 		<div class="item">
 			<button
 				data-bind="click: singlePlayer"
-				class="button button-primary b-item">
+				class="button button-primary">
 				Single Player
 			</button>
 			<button
+				data-bind="click: multiplayer"
+				class="button button-primary">
+				Multiplayer
+			</button>
+			<button
+				class="button button-primary">
+				Instructions
+			</button>
+		</div>
+		<!-- /ko -->
+
+		<!-- ko if: currentState() == states.MULTIPLAYER -->
+		<div class="item">
+			<button
 				data-bind="click: hostGame"
-				class="button button-primary b-item">
+				class="button button-primary">
 				Host Game
 			</button>
 			<button
-			 	data-bind="click: joinGame"
-				class="button button-primary b-item">
+				data-bind="click: joinGame"
+				class="button button-primary">
 				Join Game
-			</button>
-			<button
-				class="button button-primary m-item"
-				style="background: #2a2a2a;">
 			</button>
 		</div>
 		<!-- /ko -->
@@ -67,12 +89,12 @@
 			</button>
 			<button
 				data-bind="click: home"
-				class="b-item">
+				class="button button-primary">
 				Home
 			</button>
 			<button
 				data-bind="click: replay"
-				class="b-item">
+				class="button button-primary">
 				Replay
 			</button>
 		</div>
@@ -82,21 +104,21 @@
 		<div class="item">
 			<input
 			 	data-bind="value: serverName"
-				class="b-item"
+				class="button button-primary"
 				type="text"
 				placeholder="Your name...">
 			</input>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="click: startHosting"
-				class="b-item">
+				class="button button-primary">
 				Start Hosting...
 			</button>
 			<button
-				class="b-item">
+				class="button button-primary">
 				Cancel
 			</button>
 		</div>
@@ -106,16 +128,16 @@
 		<div class="item">
 			<button
 				data-bind="text: serverName"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="b-item">
+				class="button button-primary">
 			</button>
-			<button class="b-item">
+			<button class="button button-primary">
 				Waiting for a player to join...
 			</button>
-			<button class="b-item">
+			<button class="button button-primary">
 				Cancel
 			</button>
 		</div>
@@ -125,22 +147,22 @@
 		<div class="item">
 			<button
 				data-bind="text: serverName"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="text: clientName() + ' has joined!'"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 			 	data-bind="click: hostStartGame"
-				class="b-item">
+				class="button button-primary">
 				Start Game!
 			</button>
-			<button class="b-item">
+			<button class="button button-primary">
 				Cancel
 			</button>
 		</div>
@@ -158,10 +180,10 @@
 				placeholder="Room name..."></input>
 			<button
 			 	data-bind="click: joiningGame"
-				class="b-item">
+				class="button button-primary">
 				Join Room
 			</button>
-			<button class="b-item">
+			<button class="button button-primary">
 				Cancel
 			</button>
 		</div>
@@ -171,17 +193,17 @@
 		<div class="item">
 			<button
 				data-bind="text: clientName"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="text: serverName() + ' is hosting ' + roomName()"
-				class="b-item">
+				class="button button-primary">
 			</button>
 			<button
 				data-bind="text: 'Waiting on ' + serverName() + ' to start the game...'"
-				class="b-item">
+				class="button button-primary">
 			</button>
-			<button class="b-item">
+			<button class="button button-primary">
 				Cancel
 			</button>
 		</div>

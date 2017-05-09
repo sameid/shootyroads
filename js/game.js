@@ -12,6 +12,9 @@ var COLORS = {
 
 var difficultyLock = false;
 var levelSystem = {};
+var multiplayer = false;
+var hosting = false;
+var otherCharacter = null;
 
 var resetLevelSystem = function(){
     levelSystem = {
@@ -39,8 +42,8 @@ var resetMechanics = function(){
     MECHANICS = {
         ENEMY_HEALTH: 25,//arbitrary value
         SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
-        ENEMY_CREATION_RATE: 2000, //milliseconds (global)
-        DEVELOPER_MODE: false, //(global)
+        ENEMY_CREATION_RATE: 5000, //milliseconds (global)
+        DEVELOPER_MODE: true, //(global)
         ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
         ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
         RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
@@ -90,13 +93,7 @@ Zepto(function($){
 
     var enemyDeath = document.getElementById("sound-death");
 
-    getCurrentBuild(function(data){
-        var date = moment(data.date).format('MMMM Do YYYY, h:mm a');
-        $("#build").append("Version Rev"+ data.version + " (alpha) <br> Last updated " + date + "<br> Build: " + data.message );
-    });
-
     var character = {};
-    var otherCharacter = null;
     // var score = 0;
     var lossCounter = 0;
 
@@ -106,8 +103,6 @@ Zepto(function($){
     var ctx = $game.get(0).getContext("2d");
 
     var network = new Network("http://192.168.0.21:3000/echo", ui);
-    var multiplayer = false;
-    var hosting = false;
 
     game.start = function(){
         console.log("Game Started!");
@@ -179,8 +174,14 @@ Zepto(function($){
         if (!otherCharacter) {
             otherCharacter = new Character();
         }
-        otherCharacter.setState(zip.character);
-        createBullet(zip.input, otherCharacter);
+
+        if (zip.character) {
+            otherCharacter.setState(zip.character);
+        }
+
+        if (zip.input) {
+            createBullet(zip.input, otherCharacter);
+        }
     }
 
     game.receiveJoinData = function(zip) {
@@ -202,14 +203,17 @@ Zepto(function($){
 
         if (zip.newEnemy) {
             var enemy = zip.newEnemy;
-            var newEnemy = new Enemy(enemy.type, enemy.character, enemy.x, enemy.y, enemy.id);
-            // newEnemy.setState(enemy);
+            // console.log("TEST: Received enemy from host", enemy.id, otherCharacter);
+
+            var newEnemy = new Enemy(enemy.type, otherCharacter, enemy.x, enemy.y, enemy.id);
+            newEnemy.setState(enemy);
             enemyStack.push(newEnemy);
         }
 
         if (zip.deadEnemy) {
             enemyStack.forEach(function(enemy, index, array) {
-                if (enemy.id = zip.deadEnemy.id){
+                if (enemy.id == zip.deadEnemy.id){
+                    //delete array[index];
                     enemy.health = -1;
                 }
             });
@@ -237,13 +241,19 @@ Zepto(function($){
         if (levelSystem.spawnCount < 5){
             levelSystem.spawnCount++;
             var type = levelSystem.spawnStack[Math.floor(Math.random() * levelSystem.spawnStack.length)];
-            var enemy = new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character);
-            enemyStack.push(enemy);
-            toggleCharacter = !toggleCharacter;
+            // var enemy = new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character);
+            var enemy = new Enemy(type, character);
+
+            console.log("TEST: Enemy created by host", enemy.id);
 
             network.sendGameData({
                 newEnemy: enemy
             });
+
+            enemyStack.push(enemy);
+            toggleCharacter = !toggleCharacter;
+
+
         }
     }
 
@@ -323,10 +333,6 @@ Zepto(function($){
             }
 
             if (enemy.isDead()) {
-                createExplosion(enemy.x, enemy.y, "#525252");
-                createExplosion(enemy.x, enemy.y, "#FFA318");
-                delete array[index];
-
                 if (game.isComputer()){
                     network.sendGameData({
                         deadEnemy: enemy
@@ -335,6 +341,12 @@ Zepto(function($){
                     difficultyLock = false;
                     if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
                 }
+
+                createExplosion(enemy.x, enemy.y, "#525252");
+                createExplosion(enemy.x, enemy.y, "#FFA318");
+                delete array[index];
+
+
             }
         });
 
@@ -342,13 +354,13 @@ Zepto(function($){
             bullet.move();
 
             //figure out
-            if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
-                if (!MECHANICS.DEVELOPER_MODE){
-                    network.sendGameOver();
-                    game.stop();
-                    lossCounter++;
-                }
-            }
+            // if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
+            //     if (!MECHANICS.DEVELOPER_MODE){
+            //         network.sendGameOver();
+            //         game.stop();
+            //         lossCounter++;
+            //     }
+            // }
 
             enemyStack.forEach(function(enemy, ei, ea){
                 if (collision(bullet, enemy) && !bullet.fromEnemy){
@@ -395,7 +407,7 @@ Zepto(function($){
 
         character.draw(ctx);
 
-        if (multiplayer){
+        if (multiplayer && otherCharacter){
             otherCharacter.draw(ctx);
         }
     }
