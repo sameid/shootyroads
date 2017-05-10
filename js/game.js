@@ -28,19 +28,6 @@ var resetLevelSystem = function(){
 }
 
 /**
- * Will check the level based on the system parameters, and increase the level if necessary.
- */
-var checkLevel = function(){
-    levelSystem.currentLevel = Math.floor(levelSystem.score/3) + 1;
-    if (levelSystem.currentLevel > levelSystem.previousLevel){
-        levelSystem.spawnCount = 0;
-        if (levelSystem.reserveStack.length > 0)
-            levelSystem.spawnStack.push(levelSystem.reserveStack.pop());
-    }
-    levelSystem.previousLevel = levelSystem.currentLevel;
-}
-
-/**
  * Resets all the game mechanics.
  */
 var resetMechanics = function(){
@@ -112,7 +99,7 @@ Zepto(function($){
     /**
      * Handles the over game initialization, can be run many times.
      */
-    game.start = function(){
+    game.start = function() {
         console.log("Game Started!");
 
         // Reset the overall mechanics and level system for the game
@@ -157,7 +144,7 @@ Zepto(function($){
         }
 
         // Start the game loop after 300 ms (Safety)
-        setTimeout(function(){
+        setTimeout(function() {
             // Running the game loop at 1000 ms/ 60, ensures the game runs at 60FPS
             game.id = setInterval(game.loop, 1000 / 60);
         }, 300);
@@ -222,14 +209,18 @@ Zepto(function($){
      * @param zip {Object} - network object
      */
     game.receiveJoinData = function(zip) {
+
+        // If the host sent the level system, then update the local level system
         if (zip.levelSystem) {
             levelSystem = zip.levelSystem;
         }
 
+        // If the host sent it's character data then set the current state for the other character
         if (zip.character) {
             otherCharacter.setState(zip.character);
         }
 
+        // If the host sent it's input data, then create a new bullet if necessary
         if (zip.input) {
             createBullet(zip.input, otherCharacter);
         }
@@ -261,7 +252,7 @@ Zepto(function($){
         }
     }
 
-    $game.on("touchstart", function(e){
+    $game.on("touchstart", function(e) {
         character.x = game.width/2;
         character.y = game.height/2;
     });
@@ -271,31 +262,74 @@ Zepto(function($){
     var bulletStack = [];
     var particleStack = [];
 
-    var randomFloat = function(min, max){
+    /**
+     * Generate a random float in between in the min and max parameters passed.
+     *
+     * @param min {Integer}
+     * @param max {Integer}
+     */
+    var randomFloat = function(min, max) {
         return min + Math.random()*(max-min);
     }
 
     var toggleCharacter = false;
 
-    var createEnemy = function(){
+    /**
+     * Will check the level based on the system parameters, and increase the level if necessary.
+     */
+    var checkLevel = function() {
+        // Calculate the currentLevel based on the total number of enemies killed (score)
+        levelSystem.currentLevel = Math.floor(levelSystem.score/3) + 1;
+
+        // Check if the currentLevel is greater than the previous level and reset the spawn count.
+        if (levelSystem.currentLevel > levelSystem.previousLevel){
+            levelSystem.spawnCount = 0;
+            if (levelSystem.reserveStack.length > 0) {
+                // Now add a new enemy type to the type of enemies that can be created
+                levelSystem.spawnStack.push(levelSystem.reserveStack.pop());
+            }
+        }
+        levelSystem.previousLevel = levelSystem.currentLevel;
+    }
+
+    /**
+     * Creates a new enemy based on if the level system allows
+     */
+    var createEnemy = function() {
+
         checkLevel();
+
+        // If the number of enemies that have been spawned in the current level is below 5, create a new enemy.
         if (levelSystem.spawnCount < 5){
             levelSystem.spawnCount++;
+
+            // Randomly select an enemy type from the list of types available in this level.
             var type = levelSystem.spawnStack[Math.floor(Math.random() * levelSystem.spawnStack.length)];
-            var enemy = new Enemy(type, toggleCharacter && otherCharacter ? otherCharacter : character);
+
+            // Toggle which character this new enemy should follow, will always default to the regular character
+            var followCharacter = toggleCharacter && otherCharacter ? otherCharacter : character;
+
+            // Create the new enemy
+            var enemy = new Enemy(type, followCharacter);
             // console.log("TEST: Enemy created by host", enemy.id);
 
+            // Let the client know we have created a new enemy
             network.sendGameData({
                 newEnemy: enemy,
                 followHost: !toggleCharacter
             });
 
+            // Push the new enemy to the character stack.
             enemyStack.push(enemy);
             toggleCharacter = !toggleCharacter;
         }
     }
 
+    /**
+     * Creates a bullet based on the input parameters passed
+     */
     var createBullet = function (input, character) {
+        // If the user is left clicking, then create a new bullet object and append to the bulletStack
         if (input.down){
             bulletStack.push(new Bullet(character.x, character.y, input.x, input.y));
         }
@@ -332,38 +366,63 @@ Zepto(function($){
         }
     }
 
-    var collision = function(o1, o2){
+    /**
+     * Checks if two objects have collided
+     *
+     * @param o1 {Character|Bullet|Enemy}
+     * @param o2 {Character|Bullet|Enemy}
+     */
+    var collision = function(o1, o2) {
         if (_.isNull(o1) || _.isNull(o2)) return false;
         var dx = o2.x - o1.x;
         var dy = o2.y - o1.y;
         var radii = o2.radius + o1.radius;
-        if (( dx * dx )  + ( dy * dy ) < radii * radii ){
+        if (( dx * dx )  + ( dy * dy ) < radii * radii ) {
             return true;
         }
         return false;
     }
 
-    var clearStacks = function(){
+    /**
+     * Clears all game object stacks
+     */
+    var clearStacks = function() {
         enemyStack = [];
         bulletStack = [];
         partcleStack = [];
     }
 
-    var increaseDifficulty = function(score){
+    /**
+     *  rmove?
+     */
+    var increaseDifficulty = function(score) {
         MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
         MECHANICS.ENEMY_MAX_SPEED += MECHANICS.ENEMY_SPEED_INCREASE_RATE;
     }
 
+    /**
+     * Update all the game logic based on the current state of the elements involved
+     */
     game.update = function(){
+        // Create bullets if necessary
         createBullet(mouse, character);
 
+        // Iterate through the enemy stack and perform necessary state changes
         enemyStack.forEach(function(enemy, index, array){
+            // Perform the necessary enemy behaviour
             enemy.behaviour(enemyStack, bulletStack, character);
+
+            // Move the location of the enemy
             enemy.move();
 
+            // If the user is performing the computation for both the host and client, then perform collision detection
             if (game.isComputer()){
+
+                // Check if either characters have collided with an enemy
                 if (collision(character, enemy) || collision(otherCharacter, enemy)){
                     if (!MECHANICS.DEVELOPER_MODE){
+
+                        // If they have collided end the game and notify the other
                         network.sendGameOver();
                         game.stop();
                         lossCounter++;
@@ -371,25 +430,37 @@ Zepto(function($){
                 }
             }
 
+            // Check if the enemy is dead
             if (enemy.isDead()) {
+
+                // If the user is performing game computation let the client know that an enemy died
                 if (game.isComputer()){
                     network.sendGameData({
                         deadEnemy: enemy
                     });
+
+                    // Increase score
                     levelSystem.score++;
                     difficultyLock = false;
+
+                    //remove?
                     if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
                 }
 
+                // Create an explosion object
                 createExplosion(enemy.x, enemy.y, "#525252");
                 createExplosion(enemy.x, enemy.y, "#FFA318");
+
+                // Remove the enemy from the current enemy stack
                 delete array[index];
 
 
             }
         });
 
-        bulletStack.forEach(function(bullet, index, array){
+        // Iterate through each bullet in the bullet stack
+        bulletStack.forEach(function(bullet, index, array) {
+            // Move the location of the bullet
             bullet.move();
 
             //figure out
@@ -401,63 +472,95 @@ Zepto(function($){
             //     }
             // }
 
-            enemyStack.forEach(function(enemy, ei, ea){
-                if (collision(bullet, enemy) && !bullet.fromEnemy){
+            // For each bullet iterate through each enemy and perform a collision detect
+            enemyStack.forEach(function(enemy, ei, ea) {
+                // If the bullet and enemy collide decrease the enemy health
+                if (collision(bullet, enemy) && !bullet.fromEnemy) {
                     enemy.decreaseHealth();
+
+                    // On the next process tick, delete the bullet from the bullet stack
                     setTimeout(function(){
                         delete array[index];
                     }, 10);
                 }
             });
 
-            if (bullet.isOutside()){
+            // Check if the bullet is outside the canvas and remove it from the stack
+            // Simply a memory leak fix
+            if (bullet.isOutside()) {
                 delete array[index];
             }
         });
 
-        particleStack.forEach(function(particle, index, array){
+        // Iterate through each particle and update it's state
+        particleStack.forEach(function(particle, index, array) {
             particle.update();
-            if (particle.isDead()){
+
+            // Check if the particle is at it's smallest
+            if (particle.isDead()) {
+
+                // Remove the particle from the particle stack
+                // Another memory leak fix
                 delete array[index];
             }
         });
 
+        // Update the character location
         character.move(direction);
     }
 
+    /**
+     * Draw all the objects to canvas
+     */
     game.draw = function(){
+        // Clear the canvas on each iteration of the game loop
         ctx.clearRect(0, 0, game.width, game.height);
 
+        // Draw the score in background
         game.drawScore(ctx);
 
+        // Draw all the bullets on the bullet stack
         bulletStack.forEach(function(bullet){
             bullet.draw(ctx);
         });
 
+        // Draw all the enemies on the enemy stack
         enemyStack.forEach(function(enemy){
+            // Sanity check if the enemy actually exists
             if (enemy){
                 enemy.draw(ctx);
             }
         });
 
+        // Draw all the particles on the particle stack
         particleStack.forEach(function(particle, index, array){
             particle.draw(ctx);
         });
 
+        // Draw the character
         character.draw(ctx);
 
+        // Draw the otherCharacter if it's multiplayer and the otherCharacter exists
         if (multiplayer && otherCharacter){
             otherCharacter.draw(ctx);
         }
     }
 
+    /**
+     * The core game loop that runs at 60 fps
+     */
     game.loop = function(){
         game.network();
         game.update();
         game.draw();
     }
 
+    /**
+     * When a character dies, we want the player to be in limbo for 3 seconds, this function renders all the on screen elements
+     */
     game.endGame = function(){
+
+        // Update all the particles
         particleStack.forEach(function(particle, index, array){
             particle.update();
             if (particle.isDead()){
@@ -465,29 +568,39 @@ Zepto(function($){
             }
         });
 
+        // Clear the canvas
         ctx.clearRect(0, 0, game.width, game.height);
         game.drawScore(ctx);
 
+        // Draw all the remaining enemies on the enemy stack
         enemyStack.forEach(function(enemy){
             enemy.draw(ctx);
         });
 
+        // Draw all the remaining particles on the particle stack
         particleStack.forEach(function(particle, index, array){
             particle.draw(ctx);
         });
     }
 
+    /**
+     * Performs all end game related components
+     */
     game.stop = function(){
         console.log("Game stopped.");
 
+        // Clears the game loop interval, and the enemyGenerator interval
         clearInterval(game.id);
         clearInterval(game.enemyGeneratorId);
 
+        // Run the end game loop at 60 fps
         var endGameId = setInterval(game.endGame, 1000/60);
 
+        // Create explosions where the character died to make it look like the character exploded
         createExplosion(character.x, character.y, "#525252");
         createExplosion(character.x, character.y, "#FFA318");
 
+        // Update the high score in localStorage
         var highScore = window.localStorage.getItem("highScore");
         if (!highScore) highScore = 0;
         if (levelSystem.score > highScore){
@@ -495,11 +608,19 @@ Zepto(function($){
             window.localStorage.setItem("highScore", highScore);
         }
 
+        // Let the end game "limbo" drawing run for 3 seconds
         setTimeout(function(){
+
+            // After 3 seconds end the end game "limbo"
             clearInterval(endGameId);
+
+            // Reset the score
             levelSystem.score=0;
+
+            // Clear all object stacks
             clearStacks();
 
+            // Update the current view model state
             if (game.isComputer()) {
                 vm.currentState(STATES.GAME_OVER);
             } else {
@@ -509,11 +630,14 @@ Zepto(function($){
         }, 3000);
     }
 
+    /**
+     * Indicates whether this current user should do core game computation (eg. creating enemies and checking collisions)
+     */
     game.isComputer = function() {
         return !multiplayer || (multiplayer && hosting);
     }
 
-    game.drawScore = function(ctx){
+    game.drawScore = function(ctx) {
         ctx.font = "700px score";
         ctx.fillStyle = '#bdc3c7';
         ctx.textAlign = "center";
@@ -522,5 +646,4 @@ Zepto(function($){
 
     var vm = new MasterViewModel(game, network, ui);
     ko.applyBindings(vm);
-
 });
