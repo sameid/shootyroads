@@ -1,4 +1,4 @@
-function polygon(ctx, x, y, radius, sides, startAngle, anticlockwise) {
+var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
     if (sides < 3) return;
     var a = (Math.PI * 2)/sides;
     a = anticlockwise?-a:a;
@@ -209,7 +209,6 @@ var enemyLibrary = {
 }
 
 var Enemy = function(type, followCharacter, x, y, id){
-
     this.id = id || Math.floor(Math.random()*10000)
 	this.radius = SCALAR * 0.04;
 	this.direction = 0;

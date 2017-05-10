@@ -11,6 +11,9 @@
     "author": "Sameid Usmani <sameidusmani.com>",
     "license": "MIT",
     "dependencies": {
+        "express": "*",
+        "path": "*",
+        "body-parser": "*",
         "sockjs": "*"
     }
 }

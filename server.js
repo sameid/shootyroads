@@ -1,6 +1,25 @@
 var http = require('http');
 var sockjs = require('sockjs');
-var MESSAGES = require("./js/messages");
+
+var express = require("express");
+var bodyParser = require("body-parser");
+var app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+var port = process.env.PORT || 4000;
+var router = express.Router();
+
+router.get('/', function(req, res) {
+
+});
+
+app.use('/', router);
+app.listen(port);
+
+var MESSAGES = require("./public/js/messages");
 var ERRORS = {
     ROOM_ALREADY_EXISTS: {
         error: 1000,
