@@ -1,6 +1,6 @@
 var MESSAGES = require("./public/js/messages");
 
-var http = require('https');
+var https = require('https');
 var sockjs = require('sockjs');
 
 var express = require("express");
