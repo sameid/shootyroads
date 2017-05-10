@@ -1,6 +1,6 @@
 var MESSAGES = require("./public/js/messages");
 
-var https = require('https');
+var http = require('http');
 var sockjs = require('sockjs');
 
 var express = require("express");
@@ -99,6 +99,6 @@ echo.on('connection', function(conn) {
     conn.on('close', function() {});
 });
 
-var server = https.createServer();
+var server = http.createServer();
 echo.installHandlers(server, {prefix:'/echo'});
 server.listen(3000, '0.0.0.0');
