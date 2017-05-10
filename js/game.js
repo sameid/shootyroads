@@ -3,7 +3,7 @@
  *
  * Handles all game computation and all necessary related functionality.
  *
- * Created by sameid on 08-05-17.
+ * Created by Sameid Usmani on 08-05-17.
  */
 
 var MECHANICS = {};
