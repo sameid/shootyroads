@@ -94,7 +94,7 @@ Zepto(function($){
     var $game = $("#game");
     var ctx = $game.get(0).getContext("2d");
 
-    var network = new Network("http://192.168.0.21:3000/echo", ui);
+    var network = new Network("https://shootyroads.herokuapp.com:3000/echo", ui);
 
     /**
      * Handles the over game initialization, can be run many times.
