@@ -1,3 +1,11 @@
+/**
+ * game.js
+ *
+ * Handles all game computation and all necessary related functionality.
+ *
+ * Created by sameid on 08-05-17.
+ */
+
 var MECHANICS = {};
 var difficultyLock = false;
 var levelSystem = {};
@@ -5,6 +13,9 @@ var multiplayer = false;
 var hosting = false;
 var otherCharacter = null;
 
+/**
+ * Resets the current level system to the starting points.
+ */
 var resetLevelSystem = function(){
     levelSystem = {
         previousLevel: 0,
@@ -16,9 +27,11 @@ var resetLevelSystem = function(){
     }
 }
 
+/**
+ * Will check the level based on the system parameters, and increase the level if necessary.
+ */
 var checkLevel = function(){
     levelSystem.currentLevel = Math.floor(levelSystem.score/3) + 1;
-    console.log(levelSystem.currentLevel);
     if (levelSystem.currentLevel > levelSystem.previousLevel){
         levelSystem.spawnCount = 0;
         if (levelSystem.reserveStack.length > 0)
@@ -27,6 +40,9 @@ var checkLevel = function(){
     levelSystem.previousLevel = levelSystem.currentLevel;
 }
 
+/**
+ * Resets all the game mechanics.
+ */
 var resetMechanics = function(){
     MECHANICS = {
         ENEMY_HEALTH: 25,//arbitrary value
@@ -59,6 +75,7 @@ Zepto(function($){
         y: 0
     }
 
+    // These are all the input handlers and update the global mouse object
     $("body").on("keydown", function(event){
         direction[DIRECTION[event.keyCode]] = 1;
     });
@@ -139,7 +156,7 @@ Zepto(function($){
             game.enemyGeneratorId = setInterval(createEnemy, MECHANICS.ENEMY_CREATION_RATE);
         }
 
-        // Start the game loop after 300 ms
+        // Start the game loop after 300 ms (Safety)
         setTimeout(function(){
             // Running the game loop at 1000 ms/ 60, ensures the game runs at 60FPS
             game.id = setInterval(game.loop, 1000 / 60);
@@ -159,6 +176,10 @@ Zepto(function($){
         }
     }
 
+    /**
+     * If the user is hosting the game, we need to send over all data that needs to be rendered by the client.
+     * Will be handled by receiveJoinData by the client.
+     */
     game.sendHostData = function() {
         var zip = {
             character: character,
@@ -168,6 +189,10 @@ Zepto(function($){
         network.sendGameData(zip);
     }
 
+    /**
+     * If the user is the clieant, then we need to send over all data that needs to be computed and rendered by the host.
+     * Will be handled by the receiveHostData by the host.
+     */
     game.sendJoinData = function() {
         var zip = {
             character: character,
@@ -176,6 +201,11 @@ Zepto(function($){
         network.sendGameData(zip);
     }
 
+    /**
+     * WebSocket message handler for the host.
+     *
+     * @param zip {Object} - network object
+     */
     game.receiveHostData = function(zip) {
         if (zip.character) {
             otherCharacter.setState(zip.character);
@@ -186,6 +216,11 @@ Zepto(function($){
         }
     }
 
+    /**
+     * WebSocket message handler for the client.
+     *
+     * @param zip {Object} - network object
+     */
     game.receiveJoinData = function(zip) {
         if (zip.levelSystem) {
             levelSystem = zip.levelSystem;
@@ -199,16 +234,25 @@ Zepto(function($){
             createBullet(zip.input, otherCharacter);
         }
 
+        // newEnemy will exist on zip object if a new enemy was created.
         if (zip.newEnemy) {
             var enemy = zip.newEnemy;
-            // console.log("TEST: Received enemy from host", enemy.id, otherCharacter);
             var followHost = zip.followHost;
+
+            // Create an identical enemy to the one the host created.
             var newEnemy = new Enemy(enemy.type, followHost ? otherCharacter : character, enemy.x, enemy.y, enemy.id);
+
+            //TODO: remove?
             newEnemy.setState(enemy);
+
+            // Push the newly created enemy to the local enemyStack
             enemyStack.push(newEnemy);
         }
 
+        // deadEnemy will exist on the zip object if an enemy died.
         if (zip.deadEnemy) {
+
+            // Find the matching enemy in the local enemyStack and make it's health below 0
             enemyStack.forEach(function(enemy, index, array) {
                 if (enemy.id == zip.deadEnemy.id){
                     enemy.health = -1;
@@ -222,6 +266,7 @@ Zepto(function($){
         character.y = game.height/2;
     });
 
+    // All the object stacks used for computing and drawing the game objects
     var enemyStack = [];
     var bulletStack = [];
     var particleStack = [];

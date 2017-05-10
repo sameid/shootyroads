@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8" />
+	<meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
@@ -11,24 +11,43 @@
 		<link rel="stylesheet" type="text/css" href="css/main.css" />
 	</head>
 
+	<!-- SockJS library used for the Real-time WebSocket connection for multiplayer -->
 	<script src="https://cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
+
+	<!-- External Libraries -->
+
+	<!-- Zepto.js used for jQuery like features, without all the weight -->
 	<script src="lib/zepto.min.js"></script>
+
+	<!-- moment.js used for formating dates -->
 	<script src="lib/moment.min.js"></script>
+
+	<!-- underscore.js used for simple utility for data manipulation -->
 	<script src="lib/underscore.min.js"></script>
+
+	<!-- Knockout.js used for the game ui -->
 	<script src="lib/knockout-3.4.2.js"></script>
 
-	<script src="js/constants.js"></script>
+	<!-- Core JS Scripts -->
 
+	<!-- Constant scripts -->
+	<script src="js/constants.js"></script>
 	<script src="js/messages.js"></script>
+
+	<!-- Network and Utility scripts -->
 	<script src="js/utils.js"></script>
 	<script src="js/network.js"></script>
 
+	<!-- Game object scripts -->
 	<script src="js/character.js"></script>
 	<script src="js/enemy.js"></script>
 	<script src="js/bullet.js"></script>
 	<script src="js/particle.js"></script>
 
+	<!-- UI and ViewModel script -->
 	<script src="js/app.js"></script>
+
+	<!-- Core Game Computation script -->
 	<script src="js/game.js"></script>
 
 	<body>
