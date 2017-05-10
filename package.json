@@ -12,8 +12,8 @@
     "license": "MIT",
     "dependencies": {
         "express": "*",
-        "path": "*",
         "body-parser": "*",
-        "sockjs": "*"
+        "sockjs": "*",
+        "config": "*"
     }
 }

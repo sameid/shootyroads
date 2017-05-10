@@ -1,8 +1,11 @@
+var MESSAGES = require("./public/js/messages");
+
 var http = require('http');
 var sockjs = require('sockjs');
 
 var express = require("express");
 var bodyParser = require("body-parser");
+var path = require("path");
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,13 +16,12 @@ var port = process.env.PORT || 4000;
 var router = express.Router();
 
 router.get('/', function(req, res) {
-
+    res.status(200).sendFile(path.join(__dirname+'../public/index.html'));
 });
 
 app.use('/', router);
 app.listen(port);
 
-var MESSAGES = require("./public/js/messages");
 var ERRORS = {
     ROOM_ALREADY_EXISTS: {
         error: 1000,
