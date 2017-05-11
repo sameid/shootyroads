@@ -347,9 +347,8 @@ Enemy.prototype.calculateDirection = function(){
     var character = this.character;
 
     // Calculate the difference in displacement between the character and the enemy
-	var down, top;
-	top = (character.x + character.radius) - (this.x+ this.radius);
-	down = (character.y + character.radius) - (this.y + this.radius);
+	var top = (character.x + character.radius) - (this.x+ this.radius);
+	var down = (character.y + character.radius) - (this.y + this.radius);
 
     // Using the displacement, calculate the angle (direction) the character is from the enemy
     // Angle is in radians

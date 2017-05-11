@@ -46,7 +46,13 @@ var MasterViewModel = function(game, network, ui) {
         game.start();
     };
 
+    /**
+     * Cancel the current game if there is one, and reset the game
+     */
     self.cancel = function() {
+
+        //TODO: check game and stop it if necessary
+
         multiplayer = false;
         self.serverName("");
         self.clientName("");
@@ -175,6 +181,9 @@ var MasterViewModel = function(game, network, ui) {
         game.stop();
     }
 
+    /**
+     * Callback for either when the host or client has disconnected from the node server
+     */
     ui.onCancel = function () {
         self.cancel();
     }

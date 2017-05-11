@@ -182,7 +182,7 @@ webSocketServer.on('connection', function(conn) {
 
 // Create an http server to host the SockJS server
 var server = http.createServer();
-// Install the handler to the webSocketServer, and listen on /echo
-webSocketServer.installHandlers(server, {prefix:'/echo'});
+// Install the handler to the webSocketServer, and listen on /multiplayer
+webSocketServer.installHandlers(server, {prefix:'/multiplayer'});
 // Start listening to SockJS request on 3001
 server.listen(3001, '0.0.0.0');

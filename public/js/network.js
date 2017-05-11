@@ -144,6 +144,9 @@ Network.prototype.sendGameOver = function() {
     this.sock.send(message);
 }
 
+/**
+ * Let the other player in room know that the game has been cancelled
+ */
 Network.prototype.sendCancel = function() {
     var message = MESSAGES.CANCEL;
     message.isHost = this.isHost;

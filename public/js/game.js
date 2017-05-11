@@ -76,8 +76,10 @@ Zepto(function($){
     });
 
     $("body").on("mousemove", function(event){
-        mouse.x = event.pageX;
-        mouse.y = event.pageY;
+        var canvas = $game.get(0);
+        var rect = canvas.getBoundingClientRect();
+        mouse.x = Math.floor((event.pageX - rect.left) / (rect.right - rect.left) * game.width);
+        mouse.y = Math.floor((event.pageY - rect.top) / (rect.bottom - rect.top) * game.height);
     });
 
     var enemyDeath = document.getElementById("sound-death");
@@ -90,8 +92,8 @@ Zepto(function($){
     var $game = $("#game");
     var ctx = $game.get(0).getContext("2d");
 
-    var network = new Network("http://104.131.183.120:3001/echo", ui);
-    // var network = new Network("http://localhost:3001/echo", ui);
+    var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
+    // var network = new Network("http://localhost:3001/multiplayer", ui);
 
     /**
      * Handles the over game initialization, can be run many times.
