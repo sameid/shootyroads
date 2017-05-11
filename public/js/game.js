@@ -90,8 +90,8 @@ Zepto(function($){
     var $game = $("#game");
     var ctx = $game.get(0).getContext("2d");
 
-    // var network = new Network("http://104.131.183.120:3000/echo", ui);
-    var network = new Network("http://localhost:3001/echo", ui);
+    var network = new Network("http://104.131.183.120:3001/echo", ui);
+    // var network = new Network("http://localhost:3001/echo", ui);
 
     /**
      * Handles the over game initialization, can be run many times.
