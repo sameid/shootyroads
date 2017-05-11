@@ -26,12 +26,12 @@ It's as easy as that.
 - There are supporting classes for any objects related to ui, network, and other game objects.
 
 ### Game Loop
-- The Game is achieved through a common pattern known as the Game Loop.
--- Basically the game loop is achieved by creating a loop that runs non-stop to render the game.
--- First we obtain the current state of the game and use that along side the input to compute the next state. This is known as the `UPDATE`.
--- We then take that state and draw (paint) all the items to a 2D renderer, in this case the HTML5 `canvas` element. This is known as the `DRAW`.
--- We then loop again and have the process repeat.
--- The Game Loop is designed to 1000 ms divided by 60 frames. This allows the game to render 60 times a seconds, or rather 60fps.
+The Game is achieved through a common pattern known as the Game Loop.
+- Basically the game loop is achieved by creating a loop that runs non-stop to render the game.
+- First we obtain the current state of the game and use that along side the input to compute the next state. This is known as the `UPDATE`.
+- We then take that state and draw (paint) all the items to a 2D renderer, in this case the HTML5 `canvas` element. This is known as the `DRAW`.
+- We then loop again and have the process repeat.
+- The Game Loop is designed to 1000 ms divided by 60 frames. This allows the game to render 60 times a seconds, or rather 60fps.
 
 ## Stack
 
