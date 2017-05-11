@@ -6,9 +6,9 @@
  * Created by Sameid Usmani on 08-05-17.
  */
 
- /**
-  * Character constructor
-  */
+/**
+ * Character constructor
+ */
 var Character = function(){
 	this.radius = SCALAR * 0.04;
 	this.x = game.width/2;

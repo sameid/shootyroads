@@ -37,12 +37,11 @@ Backend
 
 ## Devops
 
-The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
+> The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
 
 ---
 
 ## Common Patterns
-
 
 - All the core business logic for the game is done in `public/js/game.js`.
 - There are supporting classes for any objects related to ui, network, and other game objects.

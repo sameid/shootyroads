@@ -247,7 +247,7 @@ var Enemy = function(type, followCharacter, x, y, id){
 	this.speedY = 0;
 	this.type = type;
 	this.speed = enemyLibrary[type].speed;
-	this.health = enemyLibrary[type].health;
+	this.health = enemyLibrary[type].health + MECHANICS.ENEMY_HEALTH;
     this.character = followCharacter;
 
     // Initialize properites specific to the enemy type passed in

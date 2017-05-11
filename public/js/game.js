@@ -32,16 +32,12 @@ var resetLevelSystem = function(){
  */
 var resetMechanics = function(){
     MECHANICS = {
-        ENEMY_HEALTH: 25,//arbitrary value
-        SHOOTING_DISTANCE_MULTIPLIER: 0.45,//percentage of screen height (global)
+        ENEMY_HEALTH: 0,//arbitrary value
         ENEMY_CREATION_RATE: 2000, //milliseconds (global)
         DEVELOPER_MODE: false, //(global)
-        ENEMY_MAX_SPEED: 3, //pixel per frame (60fps)
-        ENEMY_MIN_SPEED: 1,//pixel per frame (60fps)
         RATE_OF_DIFFICULTY_INCREASE: 1, //every x points (global, deprecated)
         BLOCK_DIFFICULTY_INCREASE: 50, //level at which there is no increase (global, deprecated)
         ENEMY_HEALTH_INCREASE_RATE: 5, //global, deprecated
-        ENEMY_SPEED_INCREASE_RATE: 0.25,// rate at which the enemy speed increases, (global, deprecated)
         INCREASE_DIFFICULTY: true
     }
 }
@@ -94,7 +90,8 @@ Zepto(function($){
     var $game = $("#game");
     var ctx = $game.get(0).getContext("2d");
 
-    var network = new Network("http://104.131.183.120:3000/echo", ui);
+    // var network = new Network("http://104.131.183.120:3000/echo", ui);
+    var network = new Network("http://localhost:3001/echo", ui);
 
     /**
      * Handles the over game initialization, can be run many times.
@@ -393,17 +390,27 @@ Zepto(function($){
     }
 
     /**
-     *  rmove?
+     *  Checks whether to increase the difficulty based on the current system
      */
     var increaseDifficulty = function(score) {
-        MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
-        MECHANICS.ENEMY_MAX_SPEED += MECHANICS.ENEMY_SPEED_INCREASE_RATE;
+        if (MECHANICS.INCREASE_DIFFICULTY &&
+            score <= MECHANICS.BLOCK_DIFFICULTY_INCREASE &&
+            score != 0 &&
+            score % MECHANICS.RATE_OF_DIFFICULTY_INCREASE == 0 &&
+            !difficultyLock) {
+
+            difficultyLock = true;
+            MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
+        }
     }
 
     /**
      * Update all the game logic based on the current state of the elements involved
      */
     game.update = function(){
+        // Increase the enemy health if necessary
+        increaseDifficulty(levelSystem.score);
+
         // Create bullets if necessary
         createBullet(mouse, character);
 
@@ -442,9 +449,6 @@ Zepto(function($){
                     // Increase score
                     levelSystem.score++;
                     difficultyLock = false;
-
-                    //remove?
-                    if (MECHANICS.SHOOTING_DISTANCE_MULTIPLIER > 0.15) MECHANICS.SHOOTING_DISTANCE_MULTIPLIER -= 0.01;
                 }
 
                 // Create an explosion object
@@ -637,6 +641,11 @@ Zepto(function($){
         return !multiplayer || (multiplayer && hosting);
     }
 
+    /**
+     * Will draw the score to the canvas
+     *
+     * @param ctx {CanvasContext}
+     */
     game.drawScore = function(ctx) {
         ctx.font = "700px score";
         ctx.fillStyle = '#bdc3c7';
@@ -644,6 +653,9 @@ Zepto(function($){
         ctx.fillText(levelSystem.score, game.width/2, game.height - 300);
     }
 
+    // Create a MasterViewModel and pass the necessary parameters
     var vm = new MasterViewModel(game, network, ui);
+
+    // Use knockout to apply the model to the view
     ko.applyBindings(vm);
 });

@@ -164,11 +164,6 @@ var MasterViewModel = function(game, network, ui) {
      */
     ui.onGameOver = function() {
         game.stop();
-        if (hosting){
-
-        } else {
-
-        }
     }
 
     return self;

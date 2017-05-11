@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-var port = process.env.PORT || 4000;
+var port = process.env.PORT || 3000;
 var router = express.Router();
 
 router.get('/', function(req, res) {
@@ -101,4 +101,4 @@ echo.on('connection', function(conn) {
 
 var server = http.createServer();
 echo.installHandlers(server, {prefix:'/echo'});
-server.listen(3000, '0.0.0.0');
+server.listen(3001, '0.0.0.0');

@@ -1,3 +1,11 @@
+/**
+ * constants.js
+ *
+ * Holds all constats for the game
+ *
+ * Created by Sameid Usmani on 10-05-17.
+ */
+
 var STATES = {
     GAME: 0,
     GAME_OVER: 1,
