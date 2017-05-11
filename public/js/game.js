@@ -76,10 +76,8 @@ Zepto(function($){
     });
 
     $("body").on("mousemove", function(event){
-        var canvas = $game.get(0);
-        var rect = canvas.getBoundingClientRect();
-        mouse.x = Math.floor((event.pageX - rect.left));
-        mouse.y = Math.floor((event.pageY - rect.top));
+        mouse.x = Math.floor((event.pageX - canvasRect.left));
+        mouse.y = Math.floor((event.pageY - canvasRect.top));
     });
 
     var enemyDeath = document.getElementById("sound-death");
@@ -90,7 +88,9 @@ Zepto(function($){
     var game = {};
     var ui = {};
     var $game = $("#game");
-    var ctx = $game.get(0).getContext("2d");
+    var canvas = $game.get(0);
+    var ctx = canvas.getContext("2d");
+    var canvasRect = canvas.getBoundingClientRect();
 
     var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
     // var network = new Network("http://localhost:3001/multiplayer", ui);
