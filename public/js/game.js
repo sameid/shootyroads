@@ -311,10 +311,12 @@ Zepto(function($){
             // console.log("TEST: Enemy created by host", enemy.id);
 
             // Let the client know we have created a new enemy
-            network.sendGameData({
-                newEnemy: enemy,
-                followHost: !toggleCharacter
-            });
+            if (multiplayer) {
+                network.sendGameData({
+                    newEnemy: enemy,
+                    followHost: !toggleCharacter
+                });
+            }
 
             // Push the new enemy to the character stack.
             enemyStack.push(enemy);
@@ -430,7 +432,9 @@ Zepto(function($){
                     if (!MECHANICS.DEVELOPER_MODE){
 
                         // If they have collided end the game and notify the other
-                        network.sendGameOver();
+                        if (multiplayer) {
+                            network.sendGameOver();
+                        }
                         game.stop();
                         lossCounter++;
                     }
@@ -442,9 +446,12 @@ Zepto(function($){
 
                 // If the user is performing game computation let the client know that an enemy died
                 if (game.isComputer()){
-                    network.sendGameData({
-                        deadEnemy: enemy
-                    });
+
+                    if (multiplayer) {
+                        network.sendGameData({
+                            deadEnemy: enemy
+                        });
+                    }
 
                     // Increase score
                     levelSystem.score++;

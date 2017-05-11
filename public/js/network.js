@@ -61,6 +61,9 @@ var Network = function(host, ui) {
         else if (message.id == MESSAGES.GAME_OVER.id) {
             ui.onGameOver();
         }
+        else if (message.id == MESSAGES.CANCEL.id) {
+            ui.onCancel();
+        }
     };
 
 }
@@ -137,6 +140,14 @@ Network.prototype.sendGameOver = function() {
     var message = MESSAGES.GAME_OVER;
     message.isHost = this.isHost;
     message.roomName = this.roomName;
+    message = JSON.stringify(message);
+    this.sock.send(message);
+}
+
+Network.prototype.sendCancel = function() {
+    var message = MESSAGES.CANCEL;
+    message.isHost = this.isHost;
+    messages.roomName = this.roomName;
     message = JSON.stringify(message);
     this.sock.send(message);
 }

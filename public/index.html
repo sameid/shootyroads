@@ -63,9 +63,11 @@
 			class="build-item">
 		</div>
 
-		<div class="title">
-			Shooty<br />
-			Roads
+		<div class="title-container">
+			<div class="title">
+				Shooty<br />
+				Roads
+			</div>
 		</div>
 		<!-- /ko -->
 
@@ -73,16 +75,16 @@
 		<div class="item">
 			<button
 				data-bind="click: singlePlayer"
-				class="button button-primary">
+				class="button success button-border">
 				Single Player
 			</button>
 			<button
-				data-bind="click: multiplayer"
-				class="button button-primary">
+				data-bind="click: multiplayer, disable: isOpen"
+				class="button info button-border">
 				Multiplayer
 			</button>
 			<button
-				class="button button-primary">
+				class="button button-grey button-border">
 				Instructions
 			</button>
 		</div>
@@ -92,30 +94,38 @@
 		<div class="item">
 			<button
 				data-bind="click: hostGame"
-				class="button button-primary">
+				class="button info button-border">
 				Host Game
 			</button>
 			<button
 				data-bind="click: joinGame"
-				class="button button-primary">
+				class="button info button-border">
 				Join Game
+			</button>
+			<button
+				data-bind="click: cancel"
+				class="button button-grey button-border">
+				Cancel
 			</button>
 		</div>
 		<!-- /ko -->
 
 		<!-- ko if: currentState() == states.GAME_OVER -->
 		<div class="item">
-			<button class="m-item">
-				<span id="score"></span>
-			</button>
+			<!-- <button
+			 	data-bind="value: score"
+				type="text"
+				placeholder="Enter your name"
+				class="input">
+			</button> -->
 			<button
 				data-bind="click: home"
-				class="button button-primary">
+				class="button info button-border">
 				Home
 			</button>
 			<button
 				data-bind="click: replay"
-				class="button button-primary">
+				class="button success button-border">
 				Replay
 			</button>
 		</div>
@@ -125,21 +135,22 @@
 		<div class="item">
 			<input
 			 	data-bind="value: serverName"
-				class="button button-primary"
 				type="text"
-				placeholder="Your name...">
+				placeholder="Enter your name"
+				class="input">
 			</input>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="button button-primary">
+				class="button info button-border">
 			</button>
 			<button
 				data-bind="click: startHosting"
-				class="button button-primary">
-				Start Hosting...
+				class="button success button-border">
+				Start Hosting!
 			</button>
 			<button
-				class="button button-primary">
+				data-bind="click: cancel"
+				class="button button-grey button-border">
 				Cancel
 			</button>
 		</div>
@@ -148,17 +159,19 @@
 		<!-- ko if: currentState() == states.HOST_WAITING -->
 		<div class="item">
 			<button
-				data-bind="text: serverName"
-				class="button button-primary">
+				data-bind="text: 'Welcome ' + serverName() + '!'"
+				class="button info button-border input-test">
 			</button>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="button button-primary">
+				class="button info button-border input">
 			</button>
-			<button class="button button-primary">
+			<button class="button success button-border">
 				Waiting for a player to join...
 			</button>
-			<button class="button button-primary">
+			<button
+				data-bind="click: cancel"
+				class="button button-grey button-border">
 				Cancel
 			</button>
 		</div>
@@ -167,23 +180,25 @@
 		<!-- ko if: currentState() == states.HOST_READY -->
 		<div class="item">
 			<button
-				data-bind="text: serverName"
-				class="button button-primary">
+				data-bind="text: 'Welcome ' + serverName() + '!'"
+				class="button info button-border input-test">
 			</button>
 			<button
 				data-bind="text: 'Room name: ' + roomName()"
-				class="button button-primary">
+				class="button info button-border input">
 			</button>
 			<button
 				data-bind="text: clientName() + ' has joined!'"
-				class="button button-primary">
+				class="button info button-border">
 			</button>
 			<button
 			 	data-bind="click: hostStartGame"
-				class="button button-primary">
+				class="button success button-border">
 				Start Game!
 			</button>
-			<button class="button button-primary">
+			<button
+			 	data-bind="click: cancel"
+				class="button button-grey button-border">
 				Cancel
 			</button>
 		</div>
@@ -194,17 +209,23 @@
 			<input
 			 	data-bind="value: clientName"
 				type="text"
-				placeholder="Your name..."></input>
+				placeholder="Enter a name..."
+				class="input-test">
+			</input>
 			<input
 				data-bind="value: roomName"
 				type="text"
-				placeholder="Room name..."></input>
+				placeholder="Enter a room name..."
+				class="input">
+			</input>
 			<button
 			 	data-bind="click: joiningGame"
-				class="button button-primary">
+				class="button success button-border">
 				Join Room
 			</button>
-			<button class="button button-primary">
+			<button
+			 	data-bind="click: cancel"
+				class="button button-grey button-border">
 				Cancel
 			</button>
 		</div>
@@ -213,22 +234,25 @@
 		<!-- ko if: currentState() == states.JOIN_WAITING -->
 		<div class="item">
 			<button
-				data-bind="text: clientName"
-				class="button button-primary">
+				data-bind="text: 'Welcome ' + clientName() + '!'"
+				class="button info button-border input-test">
 			</button>
 			<button
 				data-bind="text: serverName() + ' is hosting ' + roomName()"
-				class="button button-primary">
+				class="button info button-border input">
 			</button>
 			<button
 				data-bind="text: 'Waiting on ' + serverName() + ' to start the game...'"
-				class="button button-primary">
+				class="button success button-border">
 			</button>
-			<button class="button button-primary">
+			<button
+				data-bind="click: cancel"
+				class="button button-grey button-border">
 				Cancel
 			</button>
 		</div>
 		<!-- /ko -->
 
+		<!-- <audio src="assets/sounds/background.mp3" loop="true" autoplay="true" style="display: none"></audio> -->
 	</body>
 </html>

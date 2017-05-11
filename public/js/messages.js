@@ -19,6 +19,9 @@ var MESSAGES = {
     },
     GAME_OVER: {
         id: 101
+    },
+    CANCEL: {
+        id: 200
     }
 }
 

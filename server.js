@@ -156,8 +156,16 @@ webSocketServer.on('connection', function(conn) {
 
     // Listen to the close events on any given connection
     conn.on('close', function() {
+        console.log("Client closed connection:", conn.id);
+
         // Using the connectionRoomMap get the roomName and from that get the room object
-        var r = rooms[connectionRoomMap[conn.id]];
+        var roomName = connectionRoomMap[conn.id] || null;
+        var r = roomName ? rooms[roomName] : null;
+
+        // If no room exists for the current connection, simply return
+        if (!r || !r.client || !r.server) {
+            return;
+        }
 
         // Notify the host or client if either player has disconnected
         if (r.client && r.client.id == conn.id) {

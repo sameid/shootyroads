@@ -46,6 +46,14 @@ var MasterViewModel = function(game, network, ui) {
         game.start();
     };
 
+    self.cancel = function() {
+        multiplayer = false;
+        self.serverName("");
+        self.clientName("");
+        self.roomName("")
+        self.currentState(STATES.MAIN_MENU);
+    }
+
     // Main Menu Actions
 
     /**
@@ -63,13 +71,15 @@ var MasterViewModel = function(game, network, ui) {
         self.currentState(STATES.MULTIPLAYER);
     };
 
+    self.isOpen = ko.observable(!network.isClosed);
+
     /**
      * Generates a roomName for the hoster and moves to the hosting setup view
      */
     self.hostGame = function() {
         multiplayer = true;
         hosting = true;
-        self.roomName(Math.random().toString(36).substr(2, 1));
+        self.roomName(Math.floor(Math.random() * 10000));
         self.currentState(STATES.HOSTING_SETUP);
     };
 
@@ -114,7 +124,6 @@ var MasterViewModel = function(game, network, ui) {
      * Callback for the host to be notified that they can now wait for clients to join them
      */
     ui.onStartHostingResponse = function() {
-        console.log("test");
         self.currentState(STATES.HOST_WAITING);
     }
 
@@ -164,6 +173,10 @@ var MasterViewModel = function(game, network, ui) {
      */
     ui.onGameOver = function() {
         game.stop();
+    }
+
+    ui.onCancel = function () {
+        self.cancel();
     }
 
     return self;
