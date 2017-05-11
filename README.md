@@ -20,19 +20,6 @@ node server.js
 
 It's as easy as that.
 
-## Code Basics
-
-- All the core business logic for the game is done in `public/js/game.js`.
-- There are supporting classes for any objects related to ui, network, and other game objects.
-
-### Game Loop
-The Game is achieved through a common pattern known as the Game Loop.
-- Basically the game loop is achieved by creating a loop that runs non-stop to render the game.
-- First we obtain the current state of the game and use that along side the input to compute the next state. This is known as the `UPDATE`.
-- We then take that state and draw (paint) all the items to a 2D renderer, in this case the HTML5 `canvas` element. This is known as the `DRAW`.
-- We then loop again and have the process repeat.
-- The Game Loop is designed to 1000 ms divided by 60 frames. This allows the game to render 60 times a seconds, or rather 60fps.
-
 ## Stack
 
 Front-end
@@ -51,3 +38,25 @@ Backend
 ## Devops
 
 The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
+
+---
+---
+
+## Common Patterns
+
+- All the core business logic for the game is done in `public/js/game.js`.
+- There are supporting classes for any objects related to ui, network, and other game objects.
+
+### Game Loop
+The rendering of the game is achieved through a common pattern known as the Game Loop.
+- Basically the game loop is achieved by creating a loop that runs non-stop to render the game.
+- First we obtain the current state of the game and use that along side the input to compute the next state. This is known as the `UPDATE`.
+- We then take that state and draw (paint) all the items to a 2D renderer, in this case the HTML5 `canvas` element. This is known as the `DRAW`.
+- We then loop again and have the process repeat.
+- The Game Loop is designed to 1000 ms divided by 60 frames. This allows the game to render 60 times a second, or rather 60fps.
+
+### Multiplayer
+We use SockJS and their implementation of WebSockets to help us achieve real time multiplayer functionality
+- Alongside the `UPDATE` and `DRAW` operations, we perform a `NETWORK` operation that notifies the other player of the current state of the game.
+- That network call has handlers on the other side, to update the state of the game and to keep the host and client in sync.
+- After the game state has been updated, the game is rendered as normal for both the host and client.
