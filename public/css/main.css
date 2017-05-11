@@ -1,9 +1,4 @@
 @font-face {
-    font-family: flat;
-    src: url(fonts/Dense-Regular.otf);
-}
-
-@font-face {
   font-family: score;
   src: url(fonts/Lovelo-Line-Light.otf);
 }
@@ -11,11 +6,6 @@
 @font-face {
     font-family: console;
     src: url(fonts/consolas.ttf);
-}
-
-@font-face {
-  font-family: instructions;
-  src: url(fonts/Montserrat-Regular.ttf);
 }
 
 html,
