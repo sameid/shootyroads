@@ -78,8 +78,8 @@ Zepto(function($){
     $("body").on("mousemove", function(event){
         var canvas = $game.get(0);
         var rect = canvas.getBoundingClientRect();
-        mouse.x = Math.floor((event.pageX - rect.left) / (rect.right - rect.left) * game.width);
-        mouse.y = Math.floor((event.pageY - rect.top) / (rect.bottom - rect.top) * game.height);
+        mouse.x = Math.floor((event.pageX - rect.left));
+        mouse.y = Math.floor((event.pageY - rect.top));
     });
 
     var enemyDeath = document.getElementById("sound-death");
