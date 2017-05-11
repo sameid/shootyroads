@@ -1,8 +1,8 @@
-#FPC Coding Challenge: Shooty Roads
+# FPC Coding Challenge: Shooty Roads
 
 For the The Float Plane Club coding challenge, I wrote a arcade multiplayer top down shooter. You and one of your friends have to avoid the enemies and shoot them. If you collide with them even once you are dead.
 
-##How to run it locally
+## How to run it locally
 
 ```
 git clone https://github.com/sameid/shootyroads.git
@@ -12,7 +12,7 @@ node server.js
 
 It as easy as that.
 
-##Stack
+## Stack
 
 Front-end
 - SockJS (Used for the real time WebSocket communication to the backend)
