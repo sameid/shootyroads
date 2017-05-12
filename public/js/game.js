@@ -6,11 +6,14 @@
  * Created by Sameid Usmani on 08-05-17.
  */
 
+/**
+ * Global Variables
+ */
 var MECHANICS = {};
 var difficultyLock = false;
 var levelSystem = {};
-var multiplayer = false;
-var hosting = false;
+var isMultiplayer = false;
+var isHosting = false;
 var otherCharacter = null;
 
 /**
@@ -51,12 +54,28 @@ Zepto(function($){
         left: 0
     };
 
-    var mouseDown = false;
     var mouse = {
         down: false,
         x: 0,
         y: 0
-    }
+    };
+
+    var mouseDown = false;
+
+    var character = {};
+    var enemyDeath = document.getElementById("sound-death");
+    var lossCounter = 0;
+
+    var game = {};
+    var ui = {};
+
+    var $game = $("#game");
+    var canvas = $game.get(0);
+    var ctx = canvas.getContext("2d");
+    var canvasRect = canvas.getBoundingClientRect();
+
+    // var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
+    var network = new Network("http://localhost:3001/multiplayer", ui);
 
     // These are all the input handlers and update the global mouse object
     $("body").on("keydown", function(event){
@@ -79,21 +98,6 @@ Zepto(function($){
         mouse.x = Math.floor((event.pageX - canvasRect.left));
         mouse.y = Math.floor((event.pageY - canvasRect.top));
     });
-
-    var enemyDeath = document.getElementById("sound-death");
-
-    var character = {};
-    var lossCounter = 0;
-
-    var game = {};
-    var ui = {};
-    var $game = $("#game");
-    var canvas = $game.get(0);
-    var ctx = canvas.getContext("2d");
-    var canvasRect = canvas.getBoundingClientRect();
-
-    var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
-    // var network = new Network("http://localhost:3001/multiplayer", ui);
 
     /**
      * Handles the over game initialization, can be run many times.
@@ -123,14 +127,18 @@ Zepto(function($){
         $game.css('left', '0');
 
         // Create a new local character (the player)
-        character = new Character();
+        character = new Character(isMultiplayer, isHosting);
+        character.setColor(true);
 
-        if (multiplayer) {
+        if (isMultiplayer) {
             // If it's multiplayer we need to intialize the otherCharacter (other player)
-            otherCharacter = new Character();
+            otherCharacter = new Character(isMultiplayer, isHosting);
+
+            otherCharacter.setColor(!isHosting);
+            character.setColor(isHosting);
 
             // Based on whether or not this user is hosting, setup up the correct handler to listen to the WebSocket
-            if (hosting){
+            if (isHosting){
                 network.setGameDataCallback(game.receiveHostData);
             } else {
                 network.setGameDataCallback(game.receiveJoinData);
@@ -153,8 +161,8 @@ Zepto(function($){
      * Handles the network operations needed to be performed in the game loop
      */
     game.network = function() {
-        if (multiplayer) {
-            if (hosting) {
+        if (isMultiplayer) {
+            if (isHosting) {
                 game.sendHostData();
             } else {
                 game.sendJoinData();
@@ -313,7 +321,7 @@ Zepto(function($){
             // console.log("TEST: Enemy created by host", enemy.id);
 
             // Let the client know we have created a new enemy
-            if (multiplayer) {
+            if (isMultiplayer) {
                 network.sendGameData({
                     newEnemy: enemy,
                     followHost: !toggleCharacter
@@ -434,7 +442,7 @@ Zepto(function($){
                     if (!MECHANICS.DEVELOPER_MODE){
 
                         // If they have collided end the game and notify the other
-                        if (multiplayer) {
+                        if (isMultiplayer) {
                             network.sendGameOver();
                         }
                         game.stop();
@@ -449,7 +457,7 @@ Zepto(function($){
                 // If the user is performing game computation let the client know that an enemy died
                 if (game.isComputer()){
 
-                    if (multiplayer) {
+                    if (isMultiplayer) {
                         network.sendGameData({
                             deadEnemy: enemy
                         });
@@ -554,7 +562,7 @@ Zepto(function($){
         character.draw(ctx);
 
         // Draw the otherCharacter if it's multiplayer and the otherCharacter exists
-        if (multiplayer && otherCharacter){
+        if (isMultiplayer && otherCharacter){
             otherCharacter.draw(ctx);
         }
     }
@@ -647,7 +655,7 @@ Zepto(function($){
      * Indicates whether this current user should do core game computation (eg. creating enemies and checking collisions)
      */
     game.isComputer = function() {
-        return !multiplayer || (multiplayer && hosting);
+        return !isMultiplayer || (isMultiplayer && isHosting);
     }
 
     /**

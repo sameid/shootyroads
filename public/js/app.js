@@ -53,7 +53,7 @@ var MasterViewModel = function(game, network, ui) {
 
         //TODO: check game and stop it if necessary
 
-        multiplayer = false;
+        isMultiplayer = false;
         self.serverName("");
         self.clientName("");
         self.roomName("")
@@ -66,7 +66,7 @@ var MasterViewModel = function(game, network, ui) {
      * Starts a new game, for singlePlayer
      */
     self.singlePlayer = function() {
-        multiplayer = false;
+        isMultiplayer = false;
         self.startGame();
     };
 
@@ -83,8 +83,8 @@ var MasterViewModel = function(game, network, ui) {
      * Generates a roomName for the hoster and moves to the hosting setup view
      */
     self.hostGame = function() {
-        multiplayer = true;
-        hosting = true;
+        isMultiplayer = true;
+        isHosting = true;
         self.roomName(Math.floor(Math.random() * 10000));
         self.currentState(STATES.HOSTING_SETUP);
     };
@@ -93,8 +93,8 @@ var MasterViewModel = function(game, network, ui) {
      * Moves the client user to the joining ui view
      */
     self.joinGame = function() {
-        multiplayer = true;
-        hosting = false;
+        isMultiplayer = true;
+        isHosting = false;
         self.currentState(STATES.JOINING);
     }
 
@@ -111,7 +111,7 @@ var MasterViewModel = function(game, network, ui) {
      * Moves starts a new game, and will notify the client if it's in multiplayer mode
      */
     self.replay = function () {
-        if (multiplayer){
+        if (isMultiplayer){
             network.sendGameStartedByHost();
         }
         self.startGame();
@@ -148,7 +148,7 @@ var MasterViewModel = function(game, network, ui) {
      * @param message {Object}
      */
     ui.onJoinResponse = function(message) {
-        if (hosting){
+        if (isHosting){
             self.clientName(message.clientName);
             self.currentState(STATES.HOST_READY);
         } else {

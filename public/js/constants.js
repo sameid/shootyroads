@@ -30,5 +30,15 @@ var DIRECTION = {
 };
 
 var COLORS = {
-    BG: "#ecf0f1"
+    BG: "#ecf0f1",
+    CHARACTER: {
+        HOST: {
+            COLOR: "#2980b9",
+            OFF_COLOR: "#22A7F0"
+        },
+        CLIENT: {
+            COLOR: "#27ae60",
+            OFF_COLOR: "#2ecc71"
+        }
+    }
 }

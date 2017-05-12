@@ -9,10 +9,21 @@
 /**
  * Character constructor
  */
-var Character = function(){
+var Character = function(isMultiplayer, isHost) {
 	this.radius = SCALAR * 0.04;
 	this.x = game.width/2;
 	this.y = game.height/2;
+	this.isMultiplayer = isMultiplayer;
+	this.isHost = isHost;
+
+	if (isMultiplayer) {
+		if (isHost) {
+			this.x = (game.width/2) - 100;
+		} else {
+			this.x = (game.width/2) + 100;
+		}
+	}
+
 	this.SPEED = 10;
 	this.angle = 0;
 }
@@ -37,7 +48,7 @@ Character.prototype.setState = function(json) {
  *
  * @param ctx {CanvasContext}
  */
-Character.prototype.draw = function(ctx){
+Character.prototype.draw = function(ctx) {
 	//TODO: The following should be refactored to an update function
 	// The following is the calculation for the x y coordinates for the ball rotating around the character
 	this.animatex = this.x + Math.cos(this.angle) * this.radius*1.4;
@@ -47,18 +58,18 @@ Character.prototype.draw = function(ctx){
 	// Drawing the character to the canvas
 	ctx.beginPath();
 	ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-	ctx.fillStyle = "#2980b9";
+	ctx.fillStyle = this.color;
 	ctx.fill();
 
 	ctx.beginPath();
 	ctx.arc(this.x, this.y, this.radius - (this.radius * 0.5), 0, 2 * Math.PI, false);
-	ctx.fillStyle = "#22A7F0";
+	ctx.fillStyle = this.offColor;
 	ctx.fill();
 
 	// Drawing the ball rotating around the character
 	ctx.beginPath();
 	ctx.arc(this.animatex, this.animatey, this.radius - (this.radius * 0.8), 0, 2 * Math.PI, false);
-	ctx.fillStyle = "#2980b9";
+	ctx.fillStyle = this.color;
 	ctx.fill();
 }
 
@@ -67,7 +78,7 @@ Character.prototype.draw = function(ctx){
  *
  * @param direction {Object}
  */
-Character.prototype.move = function(direction){
+Character.prototype.move = function(direction) {
 	this.y -= direction.up * this.SPEED;
 	this.y += direction.down * this.SPEED;
 	this.x += direction.right * this.SPEED;
@@ -77,4 +88,9 @@ Character.prototype.move = function(direction){
 	else if (this.x+this.radius <= 0) this.x = game.width+this.radius;
 	if (this.y-this.radius >= game.height) this.y = 0-this.radius;
 	else if (this.y+this.radius <= 0) this.y = game.height+this.radius;
+}
+
+Character.prototype.setColor = function(primary) {
+	this.color = primary ? COLORS.CHARACTER.HOST.COLOR : COLORS.CHARACTER.CLIENT.COLOR;
+	this.offColor = primary ? COLORS.CHARACTER.HOST.OFF_COLOR : COLORS.CHARACTER.CLIENT.OFF_COLOR;
 }
