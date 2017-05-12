@@ -74,8 +74,8 @@ Zepto(function($){
     var ctx = canvas.getContext("2d");
     var canvasRect = canvas.getBoundingClientRect();
 
-    // var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
-    var network = new Network("http://localhost:3001/multiplayer", ui);
+    var network = new Network("http://104.131.183.120:3001/multiplayer", ui);
+    // var network = new Network("http://localhost:3001/multiplayer", ui);
 
     // These are all the input handlers and update the global mouse object
     $("body").on("keydown", function(event){
