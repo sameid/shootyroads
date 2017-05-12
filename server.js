@@ -41,6 +41,7 @@ app.use('/', router);
 
 // Listen for http request on the port specified
 app.listen(port);
+console.log("Shooty Roads hosting server started on", port);
 
 // Create a json map for rooms where the key is the room name and the object holds the connections for both the client and server
 var rooms = {};
@@ -186,3 +187,4 @@ var server = http.createServer();
 webSocketServer.installHandlers(server, {prefix:'/multiplayer'});
 // Start listening to SockJS request on 3001
 server.listen(3001, '0.0.0.0');
+console.log("SockJS server started on", 3001);
