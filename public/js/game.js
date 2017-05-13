@@ -318,7 +318,6 @@ Zepto(function($){
 
             // Create the new enemy
             var enemy = new Enemy(type, followCharacter);
-            // console.log("TEST: Enemy created by host", enemy.id);
 
             // Let the client know we have created a new enemy
             if (isMultiplayer) {

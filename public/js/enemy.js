@@ -47,12 +47,12 @@ var enemyLibrary = {
 			that.angle += (1.5) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 3, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 3, that.angle);
 			ctx.fillStyle = "#27ae60";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 3, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius*0.5), 3, that.angle);
 			ctx.fillStyle = "#2ecc71";
 			ctx.fill();
 		}
@@ -70,12 +70,12 @@ var enemyLibrary = {
 			that.angle -= (2) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 4, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 4, that.angle);
 			ctx.fillStyle = "#d35400";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 4, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius*0.5), 4, that.angle);
 			ctx.fillStyle = "#e67e22";
 			ctx.fill();
 		}
@@ -119,12 +119,12 @@ var enemyLibrary = {
 			that.angle += (4) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 5, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 5, that.angle);
 			ctx.fillStyle = "#8e44ad";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 5, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius*0.5), 5, that.angle);
 			ctx.fillStyle = "#9b59b6";
 			ctx.fill();
 		}
@@ -149,12 +149,12 @@ var enemyLibrary = {
 			that.angle -= (10) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 4, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 4, that.angle  );
 			ctx.fillStyle = "#16a085";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 4, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius * 0.5), 4, that.angle  );
 			ctx.fillStyle = "#1abc9c";
 			ctx.fill();
 		}
@@ -178,12 +178,12 @@ var enemyLibrary = {
 			that.angle += (1) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 3, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 3, that.angle);
 			ctx.fillStyle = "#f39c12";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 3, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius * 0.5), 3, that.angle);
 			ctx.fillStyle = "#e67e22";
 			ctx.fill();
 		}
@@ -215,12 +215,12 @@ var enemyLibrary = {
 			that.angle += (4) * (Math.PI / 180)
 			// that.angle ++;
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius + (that.radius * 0.2), 6, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 6, that.angle  );
 			ctx.fillStyle = "#c0392b";
 			ctx.fill();
 
 			ctx.beginPath();
-			polygon(ctx, that.x, that.y, that.radius - (that.radius*0.5), 6, that.angle  );
+			polygon(ctx, that.x, that.y, that.innerRadius - (that.innerRadius * 0.5), 6, that.angle  );
 			ctx.fillStyle = "#e74c3c";
 			ctx.fill();
 		}
@@ -241,7 +241,7 @@ var Enemy = function(type, followCharacter, x, y, id){
     this.id = id || Math.floor(Math.random()*10000)
 
     // Preset all the enemy properties
-	this.radius = SCALAR * 0.04;
+	this.radius = SCALAR * 0.02;
 	this.direction = 0;
 	this.speedX = 0;
 	this.speedY = 0;
@@ -249,6 +249,7 @@ var Enemy = function(type, followCharacter, x, y, id){
 	this.speed = enemyLibrary[type].speed;
 	this.health = enemyLibrary[type].health + MECHANICS.ENEMY_HEALTH;
     this.character = followCharacter;
+    this.innerRadius = SCALAR * 0.04;
 
     // Initialize properites specific to the enemy type passed in
 	enemyLibrary[type].init(this);
@@ -306,7 +307,7 @@ Enemy.prototype.draw = function(ctx){
  */
 Enemy.prototype.decreaseHealth = function(){
 	this.health --;
-	this.radius += 0.3;
+	this.innerRadius += 0.3;
 }
 
 /**

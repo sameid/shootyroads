@@ -84,6 +84,7 @@
 				Multiplayer
 			</button>
 			<button
+				data-bind="click: instructions"
 				class="button button-grey button-border">
 				Instructions
 			</button>
@@ -252,6 +253,24 @@
 		</div>
 		<!-- /ko -->
 
-		<!-- <audio src="assets/sounds/background.mp3" loop="true" autoplay="true" style="display: none"></audio> -->
+		<!-- ko if: currentState() == states.INSTRUCTIONS -->
+		<div class="item">
+			<button
+				class="button info nput-test">
+				Press W, A, S, D to move your character...
+			</button>
+			<button
+				class="button info input">
+				Move the mouse and left click to shoot!
+			</button>
+			<button
+				data-bind="click: cancel"
+				class="button button-grey button-border">
+				Back
+			</button>
+		</div>
+		<!-- /ko -->
+
+		<audio src="assets/sounds/background.mp3" loop="true" autoplay="true" style="display: none"></audio>
 	</body>
 </html>

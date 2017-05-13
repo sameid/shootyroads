@@ -167,6 +167,10 @@ var MasterViewModel = function(game, network, ui) {
         self.startGame();
     }
 
+    self.instructions = function() {
+        self.currentState(STATES.INSTRUCTIONS);
+    }
+
     /**
      * Callback for when the host notifies that they have started a new game
      */
