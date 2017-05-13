@@ -94,8 +94,8 @@ Zepto(function($){
     });
 
     $("body").on("mousemove", function(event){
-        mouse.x = Math.floor((event.pageX - canvasRect.left));
-        mouse.y = Math.floor((event.pageY - canvasRect.top));
+        mouse.x = Math.floor((event.pageX - canvasRect.left) / (canvasRect.right - canvasRect.left) * canvas.width);
+        mouse.y = Math.floor((event.pageY - canvasRect.top) / (canvasRect.bottom - canvasRect.top) * canvas.height);
     });
 
     /**
