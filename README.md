@@ -14,21 +14,23 @@ You are the blue circle, to move simply use `W, A, S, D`. Avoid the enemies at a
 
 ```
 git clone https://github.com/sameid/shootyroads.git
+cd shootyroads
 npm install
 node server.js
 ```
 
 Now go to [http://localhost:3000/](http://localhost:3000/) in your favourite browser.
-> Tested in Chrome only. 
-
-It's as easy as that.
+> Tested in Chrome only.
 
 ## Run it in production
 
 > The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
 
 ```
+git clone http://github.com/sameid/shootyroads.git
+cd shootyroads
 npm install -g pm2
+npm install
 pm2 start shootyroads.config.js --env production
 ```
 

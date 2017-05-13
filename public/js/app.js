@@ -196,13 +196,13 @@ var MasterViewModel = function(game, network, ui) {
         $('.toast').animate({
             opacity: 1,
             bottom: '130px',
-        }, 200, 'ease', );
+        }, 200, 'ease');
 
         setTimeout(function() {
             $('.toast').animate({
                 opacity: 0,
                 bottom: '100px',
-            }, 200, 'ease', );
+            }, 200, 'ease');
         }, 4000);
     }
 
