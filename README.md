@@ -53,10 +53,10 @@ Backend
 
 ## Credits
 
-> Fahd Usmani (Testing)
-> Zohaib Bhatti (Testing)
-> DL Sounds (Background Music)
-> All the Open Source software authors!
+> - Fahd Usmani (Testing)
+> - Zohaib Bhatti (Testing)
+> - DL Sounds (Background Music)
+> - All the Open Source software authors!
 
 ---
 
