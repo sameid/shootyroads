@@ -31,17 +31,15 @@ var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
     ctx.restore();
 }
 
-// Enemy library that stores all the different enemy types
+// Enemy library that stores all the different enemy types, and there behaviours
 var enemyLibrary = {
 	"triangle": {
 		speed: 3,
 		health: 25,
 		init: function(that){
-			//can attach some global value to use in config
 			that.angle = 0;
 		},
 		behaviour: function(that){
-			//behaviour;
 		},
 		drawConfig: function(ctx, that){
 			that.angle += (1.5) * (Math.PI / 180)
@@ -64,11 +62,9 @@ var enemyLibrary = {
 			that.angle = 0;
 		},
 		behaviour: function(that){
-			//behaviour;
 		},
 		drawConfig: function(ctx, that){
 			that.angle -= (2) * (Math.PI / 180)
-			// that.angle ++;
 			ctx.beginPath();
 			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 4, that.angle);
 			ctx.fillStyle = "#d35400";
@@ -88,36 +84,33 @@ var enemyLibrary = {
 			that.frame = 0;
 		},
 		behaviour: function(enemyStack, bulletStack, character, that){
-			//behaviour;
+            //XXX: This block was an expirement I was writing to see how enemies could shoot bullets at the player
+            // Unfortunetly I didn't get time to complete it
 			that.frame++;
 			if (that.frame % 240 == 0){
 				that.frame = 0;
-
-				var xDiff = character.x - that.x;
-				var yDiff = character.y - that.y;
-				var angle = Math.atan(xDiff/yDiff);
-
-				if (that.x  < character.x  ) {
-					if (that.y < character.y) angle = Math.PI/2 - angle;
-					else if (that.y  > character.y) angle = (Math.PI/2 + angle)*-1;
-				}
-				else if (that.x  > character.x ) {
-					if (that.y < character.y ) angle = Math.PI/2 + (angle*-1);
-					else if (that.y > character.y) angle = (Math.PI/2 + angle)*-1;
-				}
-
-				var bulletSpeedX = Math.cos(angle) * (0.3);
-				var bulletSpeedY = Math.sin(angle) * (0.3);
-
+				// var xDiff = character.x - that.x;
+				// var yDiff = character.y - that.y;
+				// var angle = Math.atan(xDiff/yDiff);
+                //
+				// if (that.x  < character.x  ) {
+				// 	if (that.y < character.y) angle = Math.PI/2 - angle;
+				// 	else if (that.y  > character.y) angle = (Math.PI/2 + angle)*-1;
+				// }
+				// else if (that.x  > character.x ) {
+				// 	if (that.y < character.y ) angle = Math.PI/2 + (angle*-1);
+				// 	else if (that.y > character.y) angle = (Math.PI/2 + angle)*-1;
+				// }
+                //
+				// var bulletSpeedX = Math.cos(angle) * (0.3);
+				// var bulletSpeedY = Math.sin(angle) * (0.3);
 				// _.throttle(function(){
 					// bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
 				// }, 100, true);
-
 			}
 		},
 		drawConfig: function(ctx, that){
 			that.angle += (4) * (Math.PI / 180)
-			// that.angle ++;
 			ctx.beginPath();
 			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 5, that.angle);
 			ctx.fillStyle = "#8e44ad";
@@ -139,9 +132,9 @@ var enemyLibrary = {
 		},
 		behaviour: function(enemyStack, bulletStack, character, that){
 			that.frame++;
-
 			if (that.frame % 300 == 0){
 				that.frame = 0;
+                //XXX: this was another expirement to see if enemies could lay bullets (bombs?) for the player to dodge
 				// bulletStack.push(new Bullet(that.x, that.y, 0, 0, true));
 			}
 		},
@@ -164,19 +157,17 @@ var enemyLibrary = {
 		health: 20,
 		init: function(that){
 			that.angle = 0;
-
 		},
 		behaviour: function(enemyStack, bulletStack, character, that){
 			if (that.health < 0){
+                //XXX: Yet another expirement to see if after an enemy is killed if it spawn 3 extra enemies
 				// enemyStack.push(new Enemy("triangle", true, that.x + that.radius + (that.radius * 0.2), that.y));
 				// enemyStack.push(new Enemy("triangle", true, that.x - that.radius + (that.radius * 0.2), that.y));
 				// enemyStack.push(new Enemy("triangle", true, that.x , that.y + that.radius + (that.radius * 0.2)));
 			}
-
 		},
 		drawConfig: function(ctx, that){
 			that.angle += (1) * (Math.PI / 180)
-			// that.angle ++;
 			ctx.beginPath();
 			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 3, that.angle);
 			ctx.fillStyle = "#f39c12";
@@ -195,25 +186,20 @@ var enemyLibrary = {
 			that.angle = 0;
 			that.shootingAngle = 0;
 			that.frame = 0;
-
 		},
 		behaviour: function(enemyStack, bulletStack, character, that){
 			that.frame++;
 			if (that.frame % 60 == 0){
-					that.shootingAngle = Math.random() * (2 * Math.PI)
-
-					that.frame = 0;
-
-					var bulletSpeedX = Math.cos(that.shootingAngle) * (0.3);
-					var bulletSpeedY = Math.sin(that.shootingAngle) * (0.3);
-
-					// bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
+                //XXX: Similar to an enemy shooting a bullet at the player, here the enemy would be able to shoot continously from any direction
+				that.shootingAngle = Math.random() * (2 * Math.PI)
+				that.frame = 0;
+				var bulletSpeedX = Math.cos(that.shootingAngle) * (0.3);
+				var bulletSpeedY = Math.sin(that.shootingAngle) * (0.3);
+				// bulletStack.push(new Bullet(that.x, that.y, bulletSpeedX, bulletSpeedY, true));
 			}
-
 		},
 		drawConfig: function(ctx, that){
 			that.angle += (4) * (Math.PI / 180)
-			// that.angle ++;
 			ctx.beginPath();
 			polygon(ctx, that.x, that.y, that.innerRadius + (that.innerRadius * 0.2), 6, that.angle  );
 			ctx.fillStyle = "#c0392b";
