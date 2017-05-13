@@ -57,7 +57,31 @@ var connectionRoomMap = {};
  */
 var send = function(conn, object){
     // Convert the object to a string, and send on the SockJSConnection
-    conn.write(JSON.stringify(object));
+    if (conn) {
+        conn.write(JSON.stringify(object));
+    }
+}
+
+/**
+ * Common pattern for relay messages to the opposite player in the room
+ *
+ * @param room {Room}
+ * @param message {Object}
+ */
+var relayMessage = function(room, message){
+    if (!room) {
+        return;
+    }
+
+    if (message.isHost) {
+        if (room.client) {
+            send(room.client, message);
+        }
+    } else {
+        if (room.server) {
+            send(room.server, message);
+        }
+    }
 }
 
 // Create a new SockJSServer
@@ -136,31 +160,16 @@ webSocketServer.on('connection', function(conn) {
         // Handle all events for in game data
         else if (message.id == MESSAGES.GAME_DATA.id) {
             // Simply get the room and push the data to the appropriate person in the room
-            var r = rooms[message.roomName];
-            if (message.isHost){
-                send(r.client, message);
-            } else {
-                send(r.server, message);
-            }
+            relayMessage(rooms[message.roomName], message);
         }
         // Handle the event if the host or client stopped the game (ie. they died)
         else if (message.id == MESSAGES.GAME_OVER.id) {
             // Notify the client or host directly
-            var r = rooms[message.roomName];
-            if (message.isHost){
-                send(r.client, message);
-            } else {
-                send(r.server, message);
-            }
+            relayMessage(rooms[message.roomName], message);
         }
         // Handle the vevent if the host or client cancel the joining or hosting process
         else if (message.id == MESSAGES.CANCEL.id) {
-            var r = rooms[message.roomName];
-            if (message.isHost) {
-                send(r.client, message);
-            } else {
-                send(r.server, message);
-            }
+            relayMessage(rooms[message.roomName], message);
         }
 
     });

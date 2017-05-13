@@ -154,6 +154,7 @@ Zepto(function($){
         setTimeout(function() {
             // Running the game loop at 1000 ms/ 60, ensures the game runs at 60FPS
             game.id = setInterval(game.loop, 1000 / 60);
+            game.running = true;
         }, 300);
     }
 
@@ -579,7 +580,6 @@ Zepto(function($){
      * When a character dies, we want the player to be in limbo for 3 seconds, this function renders all the on screen elements
      */
     game.endGame = function(){
-
         // Update all the particles
         particleStack.forEach(function(particle, index, array){
             particle.update();
@@ -608,6 +608,12 @@ Zepto(function($){
      */
     game.stop = function(){
         console.log("Game stopped.");
+
+        if (!game.running) {
+            return;
+        }
+
+        game.running = false;
 
         // Clears the game loop interval, and the enemyGenerator interval
         clearInterval(game.id);

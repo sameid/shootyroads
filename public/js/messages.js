@@ -25,6 +25,8 @@ var MESSAGES = {
     }
 }
 
-if (module){
-    module.exports = MESSAGES;
-}
+try {
+    if (module){
+        module.exports = MESSAGES;
+    }
+} catch(e) {}

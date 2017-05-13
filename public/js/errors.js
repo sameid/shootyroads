@@ -17,6 +17,8 @@ var ERRORS = {
     }
 }
 
-if (module){
-    module.exports = ERRORS;
-}
+try {
+    if (module){
+        module.exports = ERRORS;
+    }
+} catch(e) {}

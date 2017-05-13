@@ -73,6 +73,10 @@ var Network = function(host, ui) {
         else if (message.id == MESSAGES.CANCEL.id) {
             ui.onCancel();
         }
+        else if (message.id == ERRORS.CLIENT_DISCONNECTED.id || message.id == ERRORS.SERVER_DISCONNECTED.id) {
+            ui.onCancel();
+            game.stop();
+        }
     };
 
 }
