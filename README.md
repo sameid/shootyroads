@@ -10,7 +10,7 @@ You are the blue circle, to move simply use `W, A, S, D`. Avoid the enemies at a
 
 [Demo](http://104.131.183.120:8080/)
 
-## How to run it locally
+## Run it locally
 
 ```
 git clone https://github.com/sameid/shootyroads.git
@@ -18,7 +18,19 @@ npm install
 node server.js
 ```
 
+Now go to [http://localhost:3000/](http://localhost:3000/) in your favourite browser.
+> Tested in Chrome only. 
+
 It's as easy as that.
+
+## Run it in production
+
+> The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
+
+```
+npm install -g pm2
+pm2 start shootyroads.config.js --env production
+```
 
 ## Stack
 
@@ -35,15 +47,11 @@ Backend
 - SockJS (Used for the real time WebSocket communication to the front end)
 - Express.js (Used for hosting the public folder where the game resides)
 
-## Devops
-
-> The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
-
 ---
 
 ## Common Patterns
 
-- All the core business logic for the game is done in `public/js/game.js`.
+- All the core business logic for the game is computed in `public/js/game.js`.
 - There are supporting classes for any objects related to ui, network, and other game objects.
 
 ### Game Loop
