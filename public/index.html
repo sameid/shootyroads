@@ -18,6 +18,7 @@
 
 	<!-- Zepto.js used for jQuery like features, without all the weight -->
 	<script src="lib/zepto.min.js"></script>
+	<script src="lib/fx.js"></script>
 
 	<!-- moment.js used for formating dates -->
 	<script src="lib/moment.min.js"></script>
@@ -51,6 +52,7 @@
 	<script src="js/game.js"></script>
 
 	<body>
+		<div class="toast">test</div>
 		<canvas
 			data-bind="visible: currentState() == states.GAME"
 			class="game"
@@ -104,7 +106,7 @@
 				Join Game
 			</button>
 			<button
-				data-bind="click: cancel"
+				data-bind="click: cancel.bind($data, false)"
 				class="button button-grey button-border">
 				Cancel
 			</button>
@@ -149,7 +151,7 @@
 				Start Hosting!
 			</button>
 			<button
-				data-bind="click: cancel"
+				data-bind="click: cancel.bind($data, false)"
 				class="button button-grey button-border">
 				Cancel
 			</button>
@@ -170,7 +172,7 @@
 				Waiting for a player to join...
 			</button>
 			<button
-				data-bind="click: cancel"
+				data-bind="click: cancel.bind($data, false)"
 				class="button button-grey button-border">
 				Cancel
 			</button>
@@ -224,7 +226,7 @@
 				Join Room
 			</button>
 			<button
-			 	data-bind="click: cancel"
+			 	data-bind="click: cancel.bind($data, false)"
 				class="button button-grey button-border">
 				Cancel
 			</button>
@@ -264,7 +266,7 @@
 				Move the mouse and left click to shoot!
 			</button>
 			<button
-				data-bind="click: cancel"
+				data-bind="click: cancel.bind($data, false)"
 				class="button button-grey button-border">
 				Back
 			</button>

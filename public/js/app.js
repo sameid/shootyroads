@@ -58,9 +58,6 @@ var MasterViewModel = function(game, network, ui) {
         self.clientName("");
         self.roomName("")
         self.currentState(STATES.MAIN_MENU);
-
-        console.log(notify);
-
         if (notify) {
             network.sendCancel();
         }
@@ -94,7 +91,11 @@ var MasterViewModel = function(game, network, ui) {
         self.currentState(STATES.MULTIPLAYER);
     };
 
-    self.isOpen = ko.observable(!network.isClosed);
+
+    self.instructions = function() {
+        self.currentState(STATES.INSTRUCTIONS);
+    }
+
 
     /**
      * Generates a roomName for the hoster and moves to the hosting setup view
@@ -184,8 +185,24 @@ var MasterViewModel = function(game, network, ui) {
         self.startGame();
     }
 
-    self.instructions = function() {
-        self.currentState(STATES.INSTRUCTIONS);
+    /**
+     * Creates an onscreen toast message
+     */
+    self.toast = function(message) {
+        $('.toast').empty();
+        $('.toast').append(message);
+
+        $('.toast').animate({
+            opacity: 1,
+            bottom: '130px',
+        }, 200, 'ease', );
+
+        setTimeout(function() {
+            $('.toast').animate({
+                opacity: 0,
+                bottom: '100px',
+            }, 200, 'ease', );
+        }, 4000);
     }
 
     /**
@@ -206,7 +223,13 @@ var MasterViewModel = function(game, network, ui) {
      * Callback for either when the host or client has disconnected from the node server
      */
     ui.onCancel = function () {
-        self.cancel();
+        if (isHosting) {
+            self.toast(self.clientName() + " has disconnected... :(");
+        } else {
+            self.toast(self.serverName() + " has disconnected... :(");
+        }
+
+        self.cancel(false);
     }
 
     return self;
