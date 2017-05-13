@@ -9,7 +9,6 @@
         "start": "node server.js"
     },
     "author": "Sameid Usmani <sameidusmani.com>",
-    "license": "MIT",
     "dependencies": {
         "express": "*",
         "body-parser": "*",
