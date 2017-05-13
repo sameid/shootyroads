@@ -33,7 +33,7 @@ var router = express.Router();
 
 // Host the game entry point (index.html) on the '/' endpoint
 router.get('/', function(req, res) {
-    res.status(200).sendFile(path.join(__dirname+'../public/index.html'));
+    res.status(200).sendFile(path.join(__dirname + '../public/index.html'));
 });
 
 // Use that router against the '/' endpoint

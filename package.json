@@ -10,9 +10,8 @@
     },
     "author": "Sameid Usmani <sameidusmani.com>",
     "dependencies": {
-        "express": "*",
-        "body-parser": "*",
-        "sockjs": "*",
-        "config": "*"
+        "express": "4.15.2",
+        "body-parser": "1.17.1",
+        "sockjs": "0.3.18"
     }
 }
