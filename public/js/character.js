@@ -1,14 +1,14 @@
 /**
- * character.js
- *
- * Handles all character computation and drawing
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* character.js
+*
+* Handles all character computation and drawing
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
 /**
- * Character constructor
- */
+* Character constructor
+*/
 var Character = function(isMultiplayer, isHost) {
 	this.radius = SCALAR * 0.04;
 	this.x = game.width/2;
@@ -29,10 +29,10 @@ var Character = function(isMultiplayer, isHost) {
 }
 
 /**
- * Sets the current state of the Character from a raw json object
- *
- * @param json {Object}
- */
+* Sets the current state of the Character from a raw json object
+*
+* @param json {Object}
+*/
 Character.prototype.setState = function(json) {
 	this.x = json.x;
 	this.y = json.y;
@@ -44,10 +44,10 @@ Character.prototype.setState = function(json) {
 }
 
 /**
- * Sets the current state of the Character from a raw json object
- *
- * @param ctx {CanvasContext}
- */
+* Sets the current state of the Character from a raw json object
+*
+* @param ctx {CanvasContext}
+*/
 Character.prototype.draw = function(ctx) {
 	//TODO: The following should be refactored to an update function
 	// The following is the calculation for the x y coordinates for the ball rotating around the character
@@ -74,10 +74,10 @@ Character.prototype.draw = function(ctx) {
 }
 
 /**
- * Sets the current state of the Character from a raw json object
- *
- * @param direction {Object}
- */
+* Sets the current state of the Character from a raw json object
+*
+* @param direction {Object}
+*/
 Character.prototype.move = function(direction) {
 	this.y -= direction.up * this.SPEED;
 	this.y += direction.down * this.SPEED;
@@ -90,6 +90,11 @@ Character.prototype.move = function(direction) {
 	else if (this.y+this.radius <= 0) this.y = game.height+this.radius;
 }
 
+/**
+ * Set the color for the character
+ *
+ * @param primary {Boolean}
+ */
 Character.prototype.setColor = function(primary) {
 	this.color = primary ? COLORS.CHARACTER.HOST.COLOR : COLORS.CHARACTER.CLIENT.COLOR;
 	this.offColor = primary ? COLORS.CHARACTER.HOST.OFF_COLOR : COLORS.CHARACTER.CLIENT.OFF_COLOR;

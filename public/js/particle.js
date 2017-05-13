@@ -1,14 +1,14 @@
 /**
- * particle.js
- *
- * Handles all particle computation and drawing
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* particle.js
+*
+* Handles all particle computation and drawing
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
 /**
- * Particle constructor
- */
+* Particle constructor
+*/
 var Particle = function(){
 	this.scale = 1.0;
 	this.x = 0;
@@ -22,8 +22,8 @@ var Particle = function(){
 }
 
 /**
- * Performs particle updates
- */
+* Performs particle updates
+*/
 Particle.prototype.update = function() {
 	// Calculate one second over 60 frames
 	var ms = 1000/60;
@@ -44,10 +44,10 @@ Particle.prototype.update = function() {
 };
 
 /**
- * Performs particle drawing
- *
- * @param ctx {CanvasContext}
- */
+* Performs particle drawing
+*
+* @param ctx {CanvasContext}
+*/
 Particle.prototype.draw = function(ctx) {
 	// translating the 2D context to the particle coordinates
 	ctx.save();
@@ -66,8 +66,8 @@ Particle.prototype.draw = function(ctx) {
 };
 
 /**
- * Indicates if the particle is dead, and should be removed
- */
+* Indicates if the particle is dead, and should be removed
+*/
 Particle.prototype.isDead = function() {
 	return this.dead;
 }

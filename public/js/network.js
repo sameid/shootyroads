@@ -1,17 +1,17 @@
 /**
- * network.js
- *
- * Handles all network operations over WebSockets using SockJS.
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* network.js
+*
+* Handles all network operations over WebSockets using SockJS.
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
 /**
- * Network constructor
- *
- * @param host {String}
- * @param ui {Object}
- */
+* Network constructor
+*
+* @param host {String}
+* @param ui {Object}
+*/
 var Network = function(host, ui) {
     console.log("Connecting to server...", host);
     var that = this;
@@ -82,20 +82,20 @@ var Network = function(host, ui) {
 }
 
 /**
- * Sets the function which needs to be called when network updates game data
- *
- * @param callback {function(data)}
- */
+* Sets the function which needs to be called when network updates game data
+*
+* @param callback {function(data)}
+*/
 Network.prototype.setGameDataCallback = function(callback) {
     this.gameDataCallback = callback;
 }
 
 /**
- * Let the backend know room name and the name of the character asking to host a room
- *
- * @param serverName {String}
- * @param roomName {String}
- */
+* Let the backend know room name and the name of the character asking to host a room
+*
+* @param serverName {String}
+* @param roomName {String}
+*/
 Network.prototype.sendHostingMessage = function(serverName, roomName){
     this.isHost = true;
     this.roomName = roomName;
@@ -107,11 +107,11 @@ Network.prototype.sendHostingMessage = function(serverName, roomName){
 }
 
 /**
- * Let the backend know the room name and the name of the character requesting to join the room
- *
- * @param clientName {String}
- * @param roomName {String}
- */
+* Let the backend know the room name and the name of the character requesting to join the room
+*
+* @param clientName {String}
+* @param roomName {String}
+*/
 Network.prototype.sendJoiningMessage = function(clientName, roomName){
     this.isHost = false
     this.roomName = roomName;
@@ -123,8 +123,8 @@ Network.prototype.sendJoiningMessage = function(clientName, roomName){
 }
 
 /**
- * Let the client know that the host has started the game
- */
+* Let the client know that the host has started the game
+*/
 Network.prototype.sendGameStartedByHost = function(){
     var message = MESSAGES.GAME_STARTED_BY_HOST;
     message.roomName = this.roomName
@@ -133,10 +133,10 @@ Network.prototype.sendGameStartedByHost = function(){
 }
 
 /**
- * Let either the client or host send game data
- *
- * @param data {Object}
- */
+* Let either the client or host send game data
+*
+* @param data {Object}
+*/
 Network.prototype.sendGameData = function(data) {
     var message = MESSAGES.GAME_DATA;
     message.data = data;
@@ -147,8 +147,8 @@ Network.prototype.sendGameData = function(data) {
 }
 
 /**
- * Let either have either the client or host the send the game
- */
+* Let either have either the client or host the send the game
+*/
 Network.prototype.sendGameOver = function() {
     var message = MESSAGES.GAME_OVER;
     message.isHost = this.isHost;
@@ -158,8 +158,8 @@ Network.prototype.sendGameOver = function() {
 }
 
 /**
- * Let the other player in room know that the game has been cancelled
- */
+* Let the other player in room know that the game has been cancelled
+*/
 Network.prototype.sendCancel = function() {
     var message = MESSAGES.CANCEL;
     message.isHost = this.isHost;
@@ -169,8 +169,8 @@ Network.prototype.sendCancel = function() {
 }
 
 /**
- * Gracefully closes the WebSocket.
- */
+* Gracefully closes the WebSocket.
+*/
 Network.prototype.closeSocket = function() {
     this.sock.close();
 }

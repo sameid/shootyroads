@@ -1,14 +1,14 @@
 /**
- * game.js
- *
- * Handles all game computation and all necessary related functionality.
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* game.js
+*
+* Handles all game computation and all necessary related functionality.
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
 /**
- * Global Variables
- */
+* Global Variables
+*/
 var MECHANICS = {};
 var difficultyLock = false;
 var levelSystem = {};
@@ -17,8 +17,8 @@ var isHosting = false;
 var otherCharacter = null;
 
 /**
- * Resets the current level system to the starting points.
- */
+* Resets the current level system to the starting points.
+*/
 var resetLevelSystem = function(){
     levelSystem = {
         previousLevel: 0,
@@ -31,8 +31,8 @@ var resetLevelSystem = function(){
 }
 
 /**
- * Resets all the game mechanics.
- */
+* Resets all the game mechanics.
+*/
 var resetMechanics = function(){
     MECHANICS = {
         ENEMY_HEALTH: 0,//arbitrary value
@@ -99,8 +99,8 @@ Zepto(function($){
     });
 
     /**
-     * Handles the over game initialization, can be run many times.
-     */
+    * Handles the over game initialization, can be run many times.
+    */
     game.start = function() {
         console.log("Game Started!");
 
@@ -158,8 +158,8 @@ Zepto(function($){
     }
 
     /**
-     * Handles the network operations needed to be performed in the game loop
-     */
+    * Handles the network operations needed to be performed in the game loop
+    */
     game.network = function() {
         if (isMultiplayer) {
             if (isHosting) {
@@ -171,9 +171,9 @@ Zepto(function($){
     }
 
     /**
-     * If the user is hosting the game, we need to send over all data that needs to be rendered by the client.
-     * Will be handled by receiveJoinData by the client.
-     */
+    * If the user is hosting the game, we need to send over all data that needs to be rendered by the client.
+    * Will be handled by receiveJoinData by the client.
+    */
     game.sendHostData = function() {
         var zip = {
             character: character,
@@ -184,9 +184,9 @@ Zepto(function($){
     }
 
     /**
-     * If the user is the clieant, then we need to send over all data that needs to be computed and rendered by the host.
-     * Will be handled by the receiveHostData by the host.
-     */
+    * If the user is the clieant, then we need to send over all data that needs to be computed and rendered by the host.
+    * Will be handled by the receiveHostData by the host.
+    */
     game.sendJoinData = function() {
         var zip = {
             character: character,
@@ -196,10 +196,10 @@ Zepto(function($){
     }
 
     /**
-     * WebSocket message handler for the host.
-     *
-     * @param zip {Object} - network object
-     */
+    * WebSocket message handler for the host.
+    *
+    * @param zip {Object} - network object
+    */
     game.receiveHostData = function(zip) {
         if (zip.character) {
             otherCharacter.setState(zip.character);
@@ -211,10 +211,10 @@ Zepto(function($){
     }
 
     /**
-     * WebSocket message handler for the client.
-     *
-     * @param zip {Object} - network object
-     */
+    * WebSocket message handler for the client.
+    *
+    * @param zip {Object} - network object
+    */
     game.receiveJoinData = function(zip) {
 
         // If the host sent the level system, then update the local level system
@@ -270,11 +270,11 @@ Zepto(function($){
     var particleStack = [];
 
     /**
-     * Generate a random float in between in the min and max parameters passed.
-     *
-     * @param min {Integer}
-     * @param max {Integer}
-     */
+    * Generate a random float in between in the min and max parameters passed.
+    *
+    * @param min {Integer}
+    * @param max {Integer}
+    */
     var randomFloat = function(min, max) {
         return min + Math.random()*(max-min);
     }
@@ -282,8 +282,8 @@ Zepto(function($){
     var toggleCharacter = false;
 
     /**
-     * Will check the level based on the system parameters, and increase the level if necessary.
-     */
+    * Will check the level based on the system parameters, and increase the level if necessary.
+    */
     var checkLevel = function() {
         // Calculate the currentLevel based on the total number of enemies killed (score)
         levelSystem.currentLevel = Math.floor(levelSystem.score/3) + 1;
@@ -300,8 +300,8 @@ Zepto(function($){
     }
 
     /**
-     * Creates a new enemy based on if the level system allows
-     */
+    * Creates a new enemy based on if the level system allows
+    */
     var createEnemy = function() {
 
         checkLevel();
@@ -334,8 +334,8 @@ Zepto(function($){
     }
 
     /**
-     * Creates a bullet based on the input parameters passed
-     */
+    * Creates a bullet based on the input parameters passed
+    */
     var createBullet = function (input, character) {
         // If the user is left clicking, then create a new bullet object and append to the bulletStack
         if (input.down){
@@ -375,11 +375,11 @@ Zepto(function($){
     }
 
     /**
-     * Checks if two objects have collided
-     *
-     * @param o1 {Character|Bullet|Enemy}
-     * @param o2 {Character|Bullet|Enemy}
-     */
+    * Checks if two objects have collided
+    *
+    * @param o1 {Character|Bullet|Enemy}
+    * @param o2 {Character|Bullet|Enemy}
+    */
     var collision = function(o1, o2) {
         if (_.isNull(o1) || _.isNull(o2)) return false;
         var dx = o2.x - o1.x;
@@ -392,8 +392,8 @@ Zepto(function($){
     }
 
     /**
-     * Clears all game object stacks
-     */
+    * Clears all game object stacks
+    */
     var clearStacks = function() {
         enemyStack = [];
         bulletStack = [];
@@ -401,8 +401,8 @@ Zepto(function($){
     }
 
     /**
-     *  Checks whether to increase the difficulty based on the current system
-     */
+    *  Checks whether to increase the difficulty based on the current system
+    */
     var increaseDifficulty = function(score) {
         if (MECHANICS.INCREASE_DIFFICULTY &&
             score <= MECHANICS.BLOCK_DIFFICULTY_INCREASE &&
@@ -410,273 +410,273 @@ Zepto(function($){
             score % MECHANICS.RATE_OF_DIFFICULTY_INCREASE == 0 &&
             !difficultyLock) {
 
-            difficultyLock = true;
-            MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
-        }
-    }
-
-    /**
-     * Update all the game logic based on the current state of the elements involved
-     */
-    game.update = function(){
-        // Increase the enemy health if necessary
-        increaseDifficulty(levelSystem.score);
-
-        // Create bullets if necessary
-        createBullet(mouse, character);
-
-        // Iterate through the enemy stack and perform necessary state changes
-        enemyStack.forEach(function(enemy, index, array){
-            // Perform the necessary enemy behaviour
-            enemy.behaviour(enemyStack, bulletStack, character);
-
-            // Move the location of the enemy
-            enemy.move();
-
-            // If the user is performing the computation for both the host and client, then perform collision detection
-            if (game.isComputer()){
-
-                // Check if either characters have collided with an enemy
-                if (collision(character, enemy) || collision(otherCharacter, enemy)){
-                    if (!MECHANICS.DEVELOPER_MODE){
-
-                        // If they have collided end the game and notify the other
-                        if (isMultiplayer) {
-                            network.sendGameOver();
-                        }
-                        game.stop();
-                        lossCounter++;
-                    }
-                }
+                difficultyLock = true;
+                MECHANICS.ENEMY_HEALTH += MECHANICS.ENEMY_HEALTH_INCREASE_RATE;
             }
+        }
 
-            // Check if the enemy is dead
-            if (enemy.isDead()) {
+        /**
+        * Update all the game logic based on the current state of the elements involved
+        */
+        game.update = function(){
+            // Increase the enemy health if necessary
+            increaseDifficulty(levelSystem.score);
 
-                // If the user is performing game computation let the client know that an enemy died
+            // Create bullets if necessary
+            createBullet(mouse, character);
+
+            // Iterate through the enemy stack and perform necessary state changes
+            enemyStack.forEach(function(enemy, index, array){
+                // Perform the necessary enemy behaviour
+                enemy.behaviour(enemyStack, bulletStack, character);
+
+                // Move the location of the enemy
+                enemy.move();
+
+                // If the user is performing the computation for both the host and client, then perform collision detection
                 if (game.isComputer()){
 
-                    if (isMultiplayer) {
-                        network.sendGameData({
-                            deadEnemy: enemy
-                        });
-                    }
+                    // Check if either characters have collided with an enemy
+                    if (collision(character, enemy) || collision(otherCharacter, enemy)){
+                        if (!MECHANICS.DEVELOPER_MODE){
 
-                    // Increase score
-                    levelSystem.score++;
-                    difficultyLock = false;
+                            // If they have collided end the game and notify the other
+                            if (isMultiplayer) {
+                                network.sendGameOver();
+                            }
+                            game.stop();
+                            lossCounter++;
+                        }
+                    }
                 }
 
-                // Create an explosion object
-                createExplosion(enemy.x, enemy.y, "#525252");
-                createExplosion(enemy.x, enemy.y, "#FFA318");
+                // Check if the enemy is dead
+                if (enemy.isDead()) {
 
-                // Remove the enemy from the current enemy stack
-                delete array[index];
+                    // If the user is performing game computation let the client know that an enemy died
+                    if (game.isComputer()){
+
+                        if (isMultiplayer) {
+                            network.sendGameData({
+                                deadEnemy: enemy
+                            });
+                        }
+
+                        // Increase score
+                        levelSystem.score++;
+                        difficultyLock = false;
+                    }
+
+                    // Create an explosion object
+                    createExplosion(enemy.x, enemy.y, "#525252");
+                    createExplosion(enemy.x, enemy.y, "#FFA318");
+
+                    // Remove the enemy from the current enemy stack
+                    delete array[index];
 
 
-            }
-        });
-
-        // Iterate through each bullet in the bullet stack
-        bulletStack.forEach(function(bullet, index, array) {
-            // Move the location of the bullet
-            bullet.move();
-
-            //figure out
-            // if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
-            //     if (!MECHANICS.DEVELOPER_MODE){
-            //         network.sendGameOver();
-            //         game.stop();
-            //         lossCounter++;
-            //     }
-            // }
-
-            // For each bullet iterate through each enemy and perform a collision detect
-            enemyStack.forEach(function(enemy, ei, ea) {
-                // If the bullet and enemy collide decrease the enemy health
-                if (collision(bullet, enemy) && !bullet.fromEnemy) {
-                    enemy.decreaseHealth();
-
-                    // On the next process tick, delete the bullet from the bullet stack
-                    setTimeout(function(){
-                        delete array[index];
-                    }, 10);
                 }
             });
 
-            // Check if the bullet is outside the canvas and remove it from the stack
-            // Simply a memory leak fix
-            if (bullet.isOutside()) {
-                delete array[index];
+            // Iterate through each bullet in the bullet stack
+            bulletStack.forEach(function(bullet, index, array) {
+                // Move the location of the bullet
+                bullet.move();
+
+                //figure out
+                // if(bullet.fromEnemy && (collision (bullet, character) || collision(bullet, otherCharacter))){
+                //     if (!MECHANICS.DEVELOPER_MODE){
+                //         network.sendGameOver();
+                //         game.stop();
+                //         lossCounter++;
+                //     }
+                // }
+
+                // For each bullet iterate through each enemy and perform a collision detect
+                enemyStack.forEach(function(enemy, ei, ea) {
+                    // If the bullet and enemy collide decrease the enemy health
+                    if (collision(bullet, enemy) && !bullet.fromEnemy) {
+                        enemy.decreaseHealth();
+
+                        // On the next process tick, delete the bullet from the bullet stack
+                        setTimeout(function(){
+                            delete array[index];
+                        }, 10);
+                    }
+                });
+
+                // Check if the bullet is outside the canvas and remove it from the stack
+                // Simply a memory leak fix
+                if (bullet.isOutside()) {
+                    delete array[index];
+                }
+            });
+
+            // Iterate through each particle and update it's state
+            particleStack.forEach(function(particle, index, array) {
+                particle.update();
+
+                // Check if the particle is at it's smallest
+                if (particle.isDead()) {
+
+                    // Remove the particle from the particle stack
+                    // Another memory leak fix
+                    delete array[index];
+                }
+            });
+
+            // Update the character location
+            character.move(direction);
+        }
+
+        /**
+        * Draw all the objects to canvas
+        */
+        game.draw = function(){
+            // Clear the canvas on each iteration of the game loop
+            ctx.clearRect(0, 0, game.width, game.height);
+
+            // Draw the score in background
+            game.drawScore(ctx);
+
+            // Draw all the bullets on the bullet stack
+            bulletStack.forEach(function(bullet){
+                bullet.draw(ctx);
+            });
+
+            // Draw all the enemies on the enemy stack
+            enemyStack.forEach(function(enemy){
+                // Sanity check if the enemy actually exists
+                if (enemy){
+                    enemy.draw(ctx);
+                }
+            });
+
+            // Draw all the particles on the particle stack
+            particleStack.forEach(function(particle, index, array){
+                particle.draw(ctx);
+            });
+
+            // Draw the character
+            character.draw(ctx);
+
+            // Draw the otherCharacter if it's multiplayer and the otherCharacter exists
+            if (isMultiplayer && otherCharacter){
+                otherCharacter.draw(ctx);
             }
-        });
+        }
 
-        // Iterate through each particle and update it's state
-        particleStack.forEach(function(particle, index, array) {
-            particle.update();
+        /**
+        * The core game loop that runs at 60 fps
+        */
+        game.loop = function(){
+            game.network();
+            game.update();
+            game.draw();
+        }
 
-            // Check if the particle is at it's smallest
-            if (particle.isDead()) {
+        /**
+        * When a character dies, we want the player to be in limbo for 3 seconds, this function renders all the on screen elements
+        */
+        game.endGame = function(){
+            // Update all the particles
+            particleStack.forEach(function(particle, index, array){
+                particle.update();
+                if (particle.isDead()){
+                    delete array[index];
+                }
+            });
 
-                // Remove the particle from the particle stack
-                // Another memory leak fix
-                delete array[index];
-            }
-        });
+            // Clear the canvas
+            ctx.clearRect(0, 0, game.width, game.height);
+            game.drawScore(ctx);
 
-        // Update the character location
-        character.move(direction);
-    }
-
-    /**
-     * Draw all the objects to canvas
-     */
-    game.draw = function(){
-        // Clear the canvas on each iteration of the game loop
-        ctx.clearRect(0, 0, game.width, game.height);
-
-        // Draw the score in background
-        game.drawScore(ctx);
-
-        // Draw all the bullets on the bullet stack
-        bulletStack.forEach(function(bullet){
-            bullet.draw(ctx);
-        });
-
-        // Draw all the enemies on the enemy stack
-        enemyStack.forEach(function(enemy){
-            // Sanity check if the enemy actually exists
-            if (enemy){
+            // Draw all the remaining enemies on the enemy stack
+            enemyStack.forEach(function(enemy){
                 enemy.draw(ctx);
-            }
-        });
+            });
 
-        // Draw all the particles on the particle stack
-        particleStack.forEach(function(particle, index, array){
-            particle.draw(ctx);
-        });
-
-        // Draw the character
-        character.draw(ctx);
-
-        // Draw the otherCharacter if it's multiplayer and the otherCharacter exists
-        if (isMultiplayer && otherCharacter){
-            otherCharacter.draw(ctx);
-        }
-    }
-
-    /**
-     * The core game loop that runs at 60 fps
-     */
-    game.loop = function(){
-        game.network();
-        game.update();
-        game.draw();
-    }
-
-    /**
-     * When a character dies, we want the player to be in limbo for 3 seconds, this function renders all the on screen elements
-     */
-    game.endGame = function(){
-        // Update all the particles
-        particleStack.forEach(function(particle, index, array){
-            particle.update();
-            if (particle.isDead()){
-                delete array[index];
-            }
-        });
-
-        // Clear the canvas
-        ctx.clearRect(0, 0, game.width, game.height);
-        game.drawScore(ctx);
-
-        // Draw all the remaining enemies on the enemy stack
-        enemyStack.forEach(function(enemy){
-            enemy.draw(ctx);
-        });
-
-        // Draw all the remaining particles on the particle stack
-        particleStack.forEach(function(particle, index, array){
-            particle.draw(ctx);
-        });
-    }
-
-    /**
-     * Performs all end game related components
-     */
-    game.stop = function(){
-        console.log("Game stopped.");
-
-        if (!game.running) {
-            return;
+            // Draw all the remaining particles on the particle stack
+            particleStack.forEach(function(particle, index, array){
+                particle.draw(ctx);
+            });
         }
 
-        game.running = false;
+        /**
+        * Performs all end game related components
+        */
+        game.stop = function(){
+            console.log("Game stopped.");
 
-        // Clears the game loop interval, and the enemyGenerator interval
-        clearInterval(game.id);
-        clearInterval(game.enemyGeneratorId);
-
-        // Run the end game loop at 60 fps
-        var endGameId = setInterval(game.endGame, 1000/60);
-
-        // Create explosions where the character died to make it look like the character exploded
-        createExplosion(character.x, character.y, "#525252");
-        createExplosion(character.x, character.y, "#FFA318");
-
-        // Update the high score in localStorage
-        var highScore = window.localStorage.getItem("highScore");
-        if (!highScore) highScore = 0;
-        if (levelSystem.score > highScore){
-            highScore = levelSystem.score;
-            window.localStorage.setItem("highScore", highScore);
-        }
-
-        // Let the end game "limbo" drawing run for 3 seconds
-        setTimeout(function(){
-
-            // After 3 seconds end the end game "limbo"
-            clearInterval(endGameId);
-
-            // Reset the score
-            levelSystem.score=0;
-
-            // Clear all object stacks
-            clearStacks();
-
-            // Update the current view model state
-            if (game.isComputer()) {
-                vm.currentState(STATES.GAME_OVER);
-            } else {
-                vm.currentState(STATES.JOIN_WAITING);
+            if (!game.running) {
+                return;
             }
 
-        }, 3000);
-    }
+            game.running = false;
 
-    /**
-     * Indicates whether this current user should do core game computation (eg. creating enemies and checking collisions)
-     */
-    game.isComputer = function() {
-        return !isMultiplayer || (isMultiplayer && isHosting);
-    }
+            // Clears the game loop interval, and the enemyGenerator interval
+            clearInterval(game.id);
+            clearInterval(game.enemyGeneratorId);
 
-    /**
-     * Will draw the score to the canvas
-     *
-     * @param ctx {CanvasContext}
-     */
-    game.drawScore = function(ctx) {
-        ctx.font = "700px score";
-        ctx.fillStyle = '#bdc3c7';
-        ctx.textAlign = "center";
-        ctx.fillText(levelSystem.score, game.width/2, game.height - 300);
-    }
+            // Run the end game loop at 60 fps
+            var endGameId = setInterval(game.endGame, 1000/60);
 
-    // Create a MasterViewModel and pass the necessary parameters
-    var vm = new MasterViewModel(game, network, ui);
+            // Create explosions where the character died to make it look like the character exploded
+            createExplosion(character.x, character.y, "#525252");
+            createExplosion(character.x, character.y, "#FFA318");
 
-    // Use knockout to apply the model to the view
-    ko.applyBindings(vm);
-});
+            // Update the high score in localStorage
+            var highScore = window.localStorage.getItem("highScore");
+            if (!highScore) highScore = 0;
+            if (levelSystem.score > highScore){
+                highScore = levelSystem.score;
+                window.localStorage.setItem("highScore", highScore);
+            }
+
+            // Let the end game "limbo" drawing run for 3 seconds
+            setTimeout(function(){
+
+                // After 3 seconds end the end game "limbo"
+                clearInterval(endGameId);
+
+                // Reset the score
+                levelSystem.score=0;
+
+                // Clear all object stacks
+                clearStacks();
+
+                // Update the current view model state
+                if (game.isComputer()) {
+                    vm.currentState(STATES.GAME_OVER);
+                } else {
+                    vm.currentState(STATES.JOIN_WAITING);
+                }
+
+            }, 3000);
+        }
+
+        /**
+        * Indicates whether this current user should do core game computation (eg. creating enemies and checking collisions)
+        */
+        game.isComputer = function() {
+            return !isMultiplayer || (isMultiplayer && isHosting);
+        }
+
+        /**
+        * Will draw the score to the canvas
+        *
+        * @param ctx {CanvasContext}
+        */
+        game.drawScore = function(ctx) {
+            ctx.font = "700px score";
+            ctx.fillStyle = '#bdc3c7';
+            ctx.textAlign = "center";
+            ctx.fillText(levelSystem.score, game.width/2, game.height - 300);
+        }
+
+        // Create a MasterViewModel and pass the necessary parameters
+        var vm = new MasterViewModel(game, network, ui);
+
+        // Use knockout to apply the model to the view
+        ko.applyBindings(vm);
+    });

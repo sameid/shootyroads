@@ -1,19 +1,19 @@
 /**
- * app.js
- *
- * Handles all game ui
- *
- * Created by Sameid Usmani on 10-05-17.
- */
+* app.js
+*
+* Handles all game ui
+*
+* Created by Sameid Usmani on 10-05-17.
+*/
 
 /**
- * MasterViewModel, used to append to handle the main Knockout binding for all the game ui
- * (Note: Knockout uses a MVVM paradigm where this function the Model and index.html is the View, and all observables are two-way bindable properties)
- *
- * @param game {Object} - entire game Object
- * @param network {Network} - instance of the network Object
- * @param io {Object} - entire ui object
- */
+* MasterViewModel, used to append to handle the main Knockout binding for all the game ui
+* (Note: Knockout uses a MVVM paradigm where this function the Model and index.html is the View, and all observables are two-way bindable properties)
+*
+* @param game {Object} - entire game Object
+* @param network {Network} - instance of the network Object
+* @param io {Object} - entire ui object
+*/
 var MasterViewModel = function(game, network, ui) {
     // Keep a current state of the view model to be used within functions and computed observables
     var self = this;
@@ -37,8 +37,8 @@ var MasterViewModel = function(game, network, ui) {
     });
 
     /**
-     * If called in the view, it will start the actual game module
-     */
+    * If called in the view, it will start the actual game module
+    */
     self.startGame = function() {
         setTimeout(function(){
             self.currentState(STATES.GAME);
@@ -47,10 +47,10 @@ var MasterViewModel = function(game, network, ui) {
     };
 
     /**
-     * Cancel the current game if there is one, and reset the game
-     *
-     * @param notify {Boolean}
-     */
+    * Cancel the current game if there is one, and reset the game
+    *
+    * @param notify {Boolean}
+    */
     self.cancel = function(notify) {
         //TODO: check game and stop it if necessary
         isMultiplayer = false;
@@ -68,39 +68,39 @@ var MasterViewModel = function(game, network, ui) {
     self.isConnected = ko.observable(true);
 
     /**
-     * Let's the ui know that the we were unable to connect to the SockJS server
-     *
-     * @param isClosed {Boolean}
-     */
+    * Let's the ui know that the we were unable to connect to the SockJS server
+    *
+    * @param isClosed {Boolean}
+    */
     ui.isConnected = function(isClosed) {
         self.isConnected(isClosed);
     };
 
     /**
-     * Starts a new game, for singlePlayer
-     */
+    * Starts a new game, for singlePlayer
+    */
     self.singlePlayer = function() {
         isMultiplayer = false;
         self.startGame();
     };
 
     /**
-     * Moves to the multiplayer ui view
-     */
+    * Moves to the multiplayer ui view
+    */
     self.multiplayer = function() {
         self.currentState(STATES.MULTIPLAYER);
     };
 
     /**
-     * Moves to the instructions screen
-     */
+    * Moves to the instructions screen
+    */
     self.instructions = function() {
         self.currentState(STATES.INSTRUCTIONS);
     }
 
     /**
-     * Generates a roomName for the hoster and moves to the hosting setup view
-     */
+    * Generates a roomName for the hoster and moves to the hosting setup view
+    */
     self.hostGame = function() {
         isMultiplayer = true;
         isHosting = true;
@@ -109,8 +109,8 @@ var MasterViewModel = function(game, network, ui) {
     };
 
     /**
-     * Moves the client user to the joining ui view
-     */
+    * Moves the client user to the joining ui view
+    */
     self.joinGame = function() {
         isMultiplayer = true;
         isHosting = false;
@@ -120,15 +120,15 @@ var MasterViewModel = function(game, network, ui) {
     //Game Over Menu Actions
 
     /**
-     * Moves to the main menu ui view
-     */
+    * Moves to the main menu ui view
+    */
     self.home = function() {
         self.currentState(STATES.MAIN_MENU);
     }
 
     /**
-     * Moves starts a new game, and will notify the client if it's in multiplayer mode
-     */
+    * Moves starts a new game, and will notify the client if it's in multiplayer mode
+    */
     self.replay = function () {
         if (isMultiplayer){
             network.sendGameStartedByHost();
@@ -139,15 +139,15 @@ var MasterViewModel = function(game, network, ui) {
     //Hosting Menu Actions
 
     /**
-     * Notifies the backend that the host has started hosting
-     */
+    * Notifies the backend that the host has started hosting
+    */
     self.startHosting = function() {
         network.sendHostingMessage(self.serverName(), self.roomName());
     }
 
     /**
-     * Callback for the host to be notified that they can now wait for clients to join them
-     */
+    * Callback for the host to be notified that they can now wait for clients to join them
+    */
     ui.onStartHostingResponse = function() {
         self.currentState(STATES.HOST_WAITING);
     }
@@ -155,17 +155,17 @@ var MasterViewModel = function(game, network, ui) {
     //Joining Menu Actions
 
     /**
-     * Notifies the backend that the client is requesting to join a room
-     */
+    * Notifies the backend that the client is requesting to join a room
+    */
     self.joiningGame = function() {
         network.sendJoiningMessage(self.clientName(), self.roomName());
     }
 
     /**
-     * Callback for when the server responds to the join request
-     *
-     * @param message {Object}
-     */
+    * Callback for when the server responds to the join request
+    *
+    * @param message {Object}
+    */
     ui.onJoinResponse = function(message) {
         if (isHosting){
             self.clientName(message.clientName);
@@ -179,16 +179,16 @@ var MasterViewModel = function(game, network, ui) {
     //Host Ready Menu Actions
 
     /**
-     * Notifies the client that a new game has started by the host
-     */
+    * Notifies the client that a new game has started by the host
+    */
     self.hostStartGame = function() {
         network.sendGameStartedByHost();
         self.startGame();
     }
 
     /**
-     * Creates an onscreen toast message
-     */
+    * Creates an onscreen toast message
+    */
     self.toast = function(message) {
         $('.toast').empty();
         $('.toast').append(message);
@@ -207,29 +207,29 @@ var MasterViewModel = function(game, network, ui) {
     }
 
     /**
-     * Expose the toast creation on the ui level
-     */
+    * Expose the toast creation on the ui level
+    */
     ui.createToast = function(message) {
         self.toast(message);
     }
 
     /**
-     * Callback for when the host notifies that they have started a new game
-     */
+    * Callback for when the host notifies that they have started a new game
+    */
     ui.onStartGameByHost = function() {
         self.startGame();
     }
 
     /**
-     * Callback for either when the host or client has notified that the game is over.
-     */
+    * Callback for either when the host or client has notified that the game is over.
+    */
     ui.onGameOver = function() {
         game.stop();
     }
 
     /**
-     * Callback for either when the host or client has disconnected from the node server
-     */
+    * Callback for either when the host or client has disconnected from the node server
+    */
     ui.onCancel = function () {
         if (isHosting) {
             self.toast(self.clientName() + " has disconnected... :(");

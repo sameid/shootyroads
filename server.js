@@ -1,10 +1,10 @@
 /**
- * server.js
- *
- * Core server component that handles all realtime data transfer and static site hosting
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* server.js
+*
+* Core server component that handles all realtime data transfer and static site hosting
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
 // Simple constant files for identifying messages and errors
 var MESSAGES = require("./public/js/messages");
@@ -50,11 +50,11 @@ var rooms = {};
 var connectionRoomMap = {};
 
 /**
- * A helper function to send data to a SockJS connection
- *
- * @param conn {SockJSConnection}
- * @param object {Object}
- */
+* A helper function to send data to a SockJS connection
+*
+* @param conn {SockJSConnection}
+* @param object {Object}
+*/
 var send = function(conn, object){
     // Convert the object to a string, and send on the SockJSConnection
     if (conn) {
@@ -63,11 +63,11 @@ var send = function(conn, object){
 }
 
 /**
- * Common pattern for relay messages to the opposite player in the room
- *
- * @param room {Room}
- * @param message {Object}
- */
+* Common pattern for relay messages to the opposite player in the room
+*
+* @param room {Room}
+* @param message {Object}
+*/
 var relayMessage = function(room, message){
     if (!room) {
         return;

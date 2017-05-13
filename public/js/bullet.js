@@ -1,20 +1,20 @@
 /**
- * bullet.js
- *
- * Handles all Bullet computation and drawing
- *
- * Created by Sameid Usmani on 08-05-17.
- */
+* bullet.js
+*
+* Handles all Bullet computation and drawing
+*
+* Created by Sameid Usmani on 08-05-17.
+*/
 
- /**
-  * Bullet constructor
-  *
-  * @param fromX {Float}
-  * @param fromY {Float}
-  * @param toX {Float}
-  * @param toY {Float}
-  * @param fromEnemy {Boolean}
-  */
+/**
+* Bullet constructor
+*
+* @param fromX {Float}
+* @param fromY {Float}
+* @param toX {Float}
+* @param toY {Float}
+* @param fromEnemy {Boolean}
+*/
 var Bullet = function(fromX, fromY, toX, toY, fromEnemy){
 
 	var fromRadius = SCALAR * 0.04;
@@ -62,18 +62,18 @@ var Bullet = function(fromX, fromY, toX, toY, fromEnemy){
 }
 
 /**
- * Move the bullet position based on the current speed
- */
+* Move the bullet position based on the current speed
+*/
 Bullet.prototype.move = function(){
 	this.x += this.speedX;
 	this.y += this.speedY;
 }
 
 /**
- * Draw the bullet to the canvas
- *
- * @param ctx {CanvasContext}
- */
+* Draw the bullet to the canvas
+*
+* @param ctx {CanvasContext}
+*/
 Bullet.prototype.draw = function(ctx){
 	ctx.beginPath();
 	ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
@@ -82,8 +82,8 @@ Bullet.prototype.draw = function(ctx){
 }
 
 /**
- * Indicates whether the bullet is outside the current canvas
- */
+* Indicates whether the bullet is outside the current canvas
+*/
 Bullet.prototype.isOutside = function(){
 	if (this.x < 0 || this.x > game.width) return true;
 	else if (this.y < 0 || this.y > game.height) return true;
