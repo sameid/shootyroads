@@ -1,6 +1,6 @@
 # FPC Coding Challenge: Shooty Roads
 
-For the The Float Plane Club coding challenge, I wrote a arcade multiplayer top down shooter. You and one of your friends have to avoid the enemies and shoot them. If you collide with an enemy even once you are dead.
+For the The Float Plane Club coding challenge, I wrote an arcade multiplayer top down shooter. You and one of your friends have to avoid the enemies and shoot them. If you collide with an enemy even once you are dead.
 
 ## Instructions
 
@@ -27,6 +27,7 @@ Now go to [http://localhost:3000/](http://localhost:3000/) in your favourite bro
 
 > The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
 
+To run it in your own production environment
 ```
 git clone http://github.com/sameid/shootyroads.git
 cd shootyroads
@@ -40,7 +41,7 @@ pm2 start shootyroads.config.js --env production
 Front-end
 - SockJS (Used for the real time WebSocket communication to the backend)
 - TurretCSS (Used for the Game menu ui)
-- Zepto.js (Used as replacement for jQuery, without all the weight)
+- Zepto.js (Similar to jQuery, without all the weight)
 - moment.js (Used to format dates)
 - underscore.js (Used for some utility operations)
 - knockout.js (Used for the business logic in the game ui)
