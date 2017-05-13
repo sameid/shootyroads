@@ -79,7 +79,7 @@
 				Single Player
 			</button>
 			<button
-				data-bind="click: multiplayer, disable: isOpen"
+				data-bind="click: multiplayer, enable: isConnected"
 				class="button info button-border">
 				Multiplayer
 			</button>
@@ -144,7 +144,7 @@
 				class="button info button-border">
 			</button>
 			<button
-				data-bind="click: startHosting"
+				data-bind="click: startHosting, enable: serverName().length > 0"
 				class="button success button-border">
 				Start Hosting!
 			</button>
@@ -197,7 +197,7 @@
 				Start Game!
 			</button>
 			<button
-			 	data-bind="click: cancel"
+			 	data-bind="click: cancel.bind($data, true)"
 				class="button button-grey button-border">
 				Cancel
 			</button>
@@ -219,7 +219,7 @@
 				class="input">
 			</input>
 			<button
-			 	data-bind="click: joiningGame"
+			 	data-bind="click: joiningGame, enable: roomName().length > 0 && clientName().length > 0"
 				class="button success button-border">
 				Join Room
 			</button>
@@ -246,7 +246,7 @@
 				class="button success button-border">
 			</button>
 			<button
-				data-bind="click: cancel"
+				data-bind="click: cancel.bind($data, true)"
 				class="button button-grey button-border">
 				Cancel
 			</button>

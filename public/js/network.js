@@ -35,11 +35,18 @@ var Network = function(host, ui) {
     this.sock.onopen = function() {
         console.log("Connected!");
         that.isClosed = false;
+        ui.isConnected(true);
     };
 
     this.sock.onclose = function() {
         that.isClosed = true;
+        ui.isConnected(false);
     };
+
+    this.sock.onerror = function() {
+        that.isClosed = true;
+        ui.isConnected(false);
+    }
 
     // Main WebSocket message handler, performs specific game related functions based on messages
     this.sock.onmessage = function(e) {
@@ -150,7 +157,7 @@ Network.prototype.sendGameOver = function() {
 Network.prototype.sendCancel = function() {
     var message = MESSAGES.CANCEL;
     message.isHost = this.isHost;
-    messages.roomName = this.roomName;
+    message.roomName = this.roomName;
     message = JSON.stringify(message);
     this.sock.send(message);
 }

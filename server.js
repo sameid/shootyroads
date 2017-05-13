@@ -153,6 +153,16 @@ webSocketServer.on('connection', function(conn) {
                 send(r.server, message);
             }
         }
+        // Handle the vevent if the host or client cancel the joining or hosting process
+        else if (message.id == MESSAGES.CANCEL.id) {
+            var r = rooms[message.roomName];
+            if (message.isHost) {
+                send(r.client, message);
+            } else {
+                send(r.server, message);
+            }
+        }
+
     });
 
     // Listen to the close events on any given connection

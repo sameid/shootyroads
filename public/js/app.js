@@ -25,9 +25,9 @@ var MasterViewModel = function(game, network, ui) {
     self.currentState = ko.observable(STATES.MAIN_MENU); // Preset to MAIN_MENU at the initialization
 
     // Knockout Observables used for two-way binding between model and view
-    self.serverName = ko.observable();
-    self.clientName = ko.observable();
-    self.roomName = ko.observable();
+    self.serverName = ko.observable("");
+    self.clientName = ko.observable("");
+    self.roomName = ko.observable("");
     self.buildHtml = ko.observable();
 
     // Uses the getCurrentBuild in utils.js to get the current builf from Github
@@ -48,19 +48,36 @@ var MasterViewModel = function(game, network, ui) {
 
     /**
      * Cancel the current game if there is one, and reset the game
+     *
+     * @param notify {Boolean}
      */
-    self.cancel = function() {
-
+    self.cancel = function(notify) {
         //TODO: check game and stop it if necessary
-
         isMultiplayer = false;
         self.serverName("");
         self.clientName("");
         self.roomName("")
         self.currentState(STATES.MAIN_MENU);
+
+        console.log(notify);
+
+        if (notify) {
+            network.sendCancel();
+        }
     }
 
     // Main Menu Actions
+
+    self.isConnected = ko.observable(true);
+
+    /**
+     * Let's the ui know that the we were unable to connect to the SockJS server
+     *
+     * @param isClosed {Boolean}
+     */
+    ui.isConnected = function(isClosed) {
+        self.isConnected(isClosed);
+    };
 
     /**
      * Starts a new game, for singlePlayer
