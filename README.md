@@ -51,6 +51,13 @@ Backend
 - SockJS (Used for the real time WebSocket communication to the front end)
 - Express.js (Used for hosting the public folder where the game resides)
 
+## Credits
+
+> Fahd Usmani (Testing)
+> Zohaib Bhatti (Testing)
+> DL Sounds (Background Music)
+> All the Open Source software authors!
+
 ---
 
 ## Common Patterns
