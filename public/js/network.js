@@ -41,11 +41,13 @@ var Network = function(host, ui) {
     this.sock.onclose = function() {
         that.isClosed = true;
         ui.isConnected(false);
+        ui.createToast("Connection has been lost to the server.");
     };
 
     this.sock.onerror = function() {
         that.isClosed = true;
         ui.isConnected(false);
+        ui.createToast("An error occured, and you disconnected from the server.");
     }
 
     // Main WebSocket message handler, performs specific game related functions based on messages

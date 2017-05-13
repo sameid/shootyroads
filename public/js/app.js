@@ -91,11 +91,12 @@ var MasterViewModel = function(game, network, ui) {
         self.currentState(STATES.MULTIPLAYER);
     };
 
-
+    /**
+     * Moves to the instructions screen
+     */
     self.instructions = function() {
         self.currentState(STATES.INSTRUCTIONS);
     }
-
 
     /**
      * Generates a roomName for the hoster and moves to the hosting setup view
@@ -206,6 +207,13 @@ var MasterViewModel = function(game, network, ui) {
     }
 
     /**
+     * Expose the toast creation on the ui level
+     */
+    ui.createToast = function(message) {
+        self.toast(message);
+    }
+
+    /**
      * Callback for when the host notifies that they have started a new game
      */
     ui.onStartGameByHost = function() {
@@ -228,7 +236,6 @@ var MasterViewModel = function(game, network, ui) {
         } else {
             self.toast(self.serverName() + " has disconnected... :(");
         }
-
         self.cancel(false);
     }
 
