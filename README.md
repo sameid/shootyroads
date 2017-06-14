@@ -8,7 +8,7 @@ You are the blue circle, to move simply use `W, A, S, D`. Avoid the enemies at a
 
 ## Try it out!
 
-- [Demo](http://104.131.183.120:8080/)
+- [Demo](http://104.131.183.120/)
 - [Video Demo](https://youtu.be/mA6uXrE4ZlQ)
 
 ## Run it locally
