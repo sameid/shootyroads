@@ -1,6 +1,6 @@
-# FPC Coding Challenge: Shooty Roads
+# Shooty Roads
 
-For the The Float Plane Club coding challenge, I wrote an arcade multiplayer top down shooter. You and one of your friends have to avoid the enemies and shoot them. If you collide with an enemy even once you are dead.
+Shooty Roads is an arcade multiplayer top down shooter. You and one of your friends have to avoid the enemies and shoot them. If you collide with an enemy even once you are dead.
 
 ## Instructions
 
