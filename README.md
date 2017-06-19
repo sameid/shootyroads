@@ -8,7 +8,7 @@ You are the blue circle, to move simply use `W, A, S, D`. Avoid the enemies at a
 
 ## Try it out!
 
-- [Demo](http://104.131.183.120/)
+- [Demo](http://13.58.11.28/)
 - [Video Demo](https://youtu.be/mA6uXrE4ZlQ)
 
 ## Run it locally
@@ -25,7 +25,7 @@ Now go to [http://localhost:3000/](http://localhost:3000/) in your favourite bro
 
 ## Run it in production
 
-> The app is currently running on a Digital Ocean Droplet. I also use `pm2` as the production process manager.
+> The app is currently running on an AWS EC2 Instance. I also use `pm2` as the production process manager.
 
 To run it in your own production environment
 ```
